@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Financial Calculator & Music Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a202c; /* Tailwind gray-900 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568; /* Tailwind gray-600 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096; /* Tailwind gray-500 */
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        input:focus, select:focus, input[type="number"]:focus, button:focus, input[type="range"]:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: #63b3ed; /* blue-400 */
+            box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.5);
+        }
+
+        select#projectionTimelineSelect {
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            width: auto;
+        }
+         select#projectionTimelineSelect option {
+            background-color: #2d3748;
+            color: white;
+        }
+
+        /* App Layout: Three Columns */
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar { /* Left Music Player Sidebar */
+            width: 320px;
+            min-width: 300px;
+            background-color: #1f2937; /* gray-800 */
+            padding: 1.5rem; /* p-6 */
+            overflow-y: auto;
+            border-right: 1px solid #374151; /* gray-700 */
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .main-content-area { /* Center Calculator Inputs */
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background-color: #111827;
+            height: 100vh;
+        }
+        /* Projection Area within Right Sidebar */
+        .projection-display-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .projection-display-wrapper .table-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            border: 1px solid #2d3748; /* gray-700 */
+            border-radius: 0.375rem; /* rounded-md */
+            max-height: none;
+        }
+         .projection-display-wrapper .table-container thead th {
+            border-bottom: 1px solid #2d3748; /* gray-700 */
+            position: sticky;
+            top: 0;
+            background-color: #2d3748;
+            z-index: 10;
+        }
+
+        /* Music Player Styles */
+        #playlist li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.25rem;
+            border-bottom: 1px solid #374151;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #playlist li:hover {
+            background-color: #374151;
+        }
+        #playlist li.playing {
+            background-color: #4b5563;
+            font-weight: bold;
+            color: #90cdf4;
+        }
+        #playlist .song-name {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 0.5rem;
+        }
+        #audioVisualizer {
+            width: 100%;
+            height: 60px;
+            background-color: #2d3748;
+            border-radius: 0.25rem;
+            margin-top: 0.5rem;
+        }
+        .player-button, .profile-button { /* Shared style for profile buttons */
+            background-color: #4a5568;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s;
+            border: none;
+            font-size: 0.875rem;
+        }
+        .player-button:hover, .profile-button:hover {
+            background-color: #6b7280;
+        }
+        .player-button:disabled, .profile-button:disabled {
+            background-color: #374151;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .remove-song-btn {
+            background-color: transparent;
+            color: #ef4444;
+            border: none;
+            padding: 0.25rem;
+            margin-left: 0.5rem;
+        }
+        .remove-song-btn:hover {
+            color: #dc2626;
+        }
+        .timeline-container {
+            margin-top: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        #songTimeline {
+            width: 100%;
+            height: 8px;
+            background-color: #4a5568;
+            border-radius: 9999px;
+            appearance: none;
+            cursor: pointer;
+        }
+        #songTimeline::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background-color: #63b3ed;
+            border-radius: 9999px;
+            cursor: pointer;
+        }
+        #songTimeline::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background-color: #63b3ed;
+            border-radius: 9999px;
+            cursor: pointer;
+            border: none;
+        }
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 0.25rem;
+        }
+        /* Tips Panel Styles */
+        .tips-collapsible-trigger {
+            cursor: pointer;
+            padding: 0.75rem 1rem; /* p-3 px-4 */
+            background-color: #2d3748; /* gray-700 */
+            border-radius: 0.375rem; /* rounded-md */
+            transition: background-color 0.2s ease-in-out;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem; /* mt-6 */
+        }
+        .tips-collapsible-trigger:hover {
+            background-color: #4a5568; /* gray-600 */
+        }
+        .tips-collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out;
+            background-color: #1f2937; /* gray-800 */
+            border: 1px solid #2d3748; /* gray-700 */
+            border-top: none;
+            border-radius: 0 0 0.375rem 0.375rem; /* rounded-b-md */
+            padding: 0;
+        }
+        .tips-collapsible-content.expanded {
+            padding: 1rem; /* p-4 when expanded */
+        }
+        .tips-collapsible-content h4 {
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600; /* font-semibold */
+            color: #90cdf4; /* blue-300 */
+            margin-top: 0.75rem; /* mt-3 */
+            margin-bottom: 0.25rem; /* mb-1 */
+        }
+         .tips-collapsible-content p, .tips-collapsible-content li {
+            font-size: 0.875rem; /* text-sm */
+            color: #d1d5db; /* gray-300 */
+            line-height: 1.4;
+        }
+        .tips-collapsible-content ul {
+            list-style-type: disc;
+            padding-left: 1.25rem; /* pl-5 */
+        }
+        .arrow-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans antialiased">
+    <div class="app-container">
+        <aside class="sidebar">
+            <h2 class="text-2xl font-semibold text-blue-400 mb-4">Music Player</h2>
+
+            <div class="mb-3">
+                <label for="mp3Upload" class="block mb-1 text-sm font-medium text-gray-300">Upload MP3s</label>
+                <input type="file" id="mp3Upload" accept=".mp3" multiple class="w-full text-sm text-gray-400 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600 cursor-pointer">
+            </div>
+
+            <div class="controls flex items-center space-x-2 mb-3">
+                <button id="playPauseBtn" class="player-button flex-grow" disabled>Play</button>
+                <button id="stopBtn" class="player-button" disabled>Stop</button>
+            </div>
+
+            <div class="timeline-container">
+                <input type="range" id="songTimeline" value="0" step="any" disabled>
+                <div class="time-display">
+                    <span id="currentTimeDisplay">00:00</span>
+                    <span id="totalDurationDisplay">00:00</span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="volumeSlider" class="block mb-1 text-sm font-medium text-gray-300">Volume: <span id="volumeValue">50</span>%</label>
+                <input type="range" id="volumeSlider" min="0" max="100" value="50" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <div class="mb-2">
+                <p class="text-sm text-gray-300">Relative Intensity: <span id="decibelLevel" class="font-semibold text-blue-300">--</span></p>
+            </div>
+
+            <canvas id="audioVisualizer"></canvas>
+
+            <h3 class="text-lg font-medium text-blue-300 mt-4 mb-2">Playlist</h3>
+            <ul id="playlist" class="flex-grow overflow-y-auto mb-3 bg-gray-800 p-2 rounded-md max-h-48">
+                <li id="emptyPlaylistMessage" class="text-gray-500 text-center py-4">No songs uploaded.</li>
+            </ul>
+            <button id="clearPlaylistBtn" class="w-full player-button bg-red-600 hover:bg-red-700 text-sm mt-auto" disabled>Clear Playlist</button>
+        </aside>
+
+        <main class="main-content-area">
+            <div class="container mx-auto max-w-4xl">
+                <header class="mb-8 text-center pt-6">
+                    <h1 class="text-3xl sm:text-4xl font-bold text-blue-400">Advanced Financial Calculator</h1>
+                    <p class="text-gray-400 mt-2 text-sm sm:text-base">Plan your financial future with detailed projections for Nova Scotia.</p>
+                </header>
+
+                <section id="loadProfilesSection" class="mb-6 p-4 bg-gray-800 shadow-lg rounded-lg">
+                    <h3 class="text-lg font-semibold text-blue-300 mb-3">Load Sample Profile</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="loadStudentProfileBtn" class="profile-button text-xs">Student (Part-Time)</button>
+                        <button id="loadJobSeekerProfileBtn" class="profile-button text-xs">Job Seeker (Benefits)</button>
+                    </div>
+                </section>
+
+                <section id="assumptions" class="mb-8 p-6 bg-gray-800 shadow-2xl rounded-lg">
+                    <h2 class="text-xl sm:text-2xl font-semibold mb-6 text-blue-300 border-b border-gray-700 pb-3">Your Assumptions</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                        <div>
+                            <label for="startingWage" class="block mb-1 text-sm font-medium text-gray-300">Starting Hourly Wage ($)</label>
+                            <input type="number" id="startingWage" value="16.10" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                        </div>
+                        <div>
+                            <label for="hoursPerWeek" class="block mb-1 text-sm font-medium text-gray-300">Hours Worked Per Week</label>
+                            <input type="number" id="hoursPerWeek" value="15.0931677" step="0.0000001" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                        </div>
+                        <div>
+                            <label for="payrollDeductionRate" class="block mb-1 text-sm font-medium text-gray-300">Payroll Deduction Rate (%)</label>
+                            <input type="number" id="payrollDeductionRate" value="7.61" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                        </div>
+                        <div>
+                            <label for="monthlyExpenses" class="block mb-1 text-sm font-medium text-gray-300">Fixed Monthly Expenses ($)</label>
+                            <input type="number" id="monthlyExpenses" value="815.19" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                        </div>
+                        <div>
+                            <label for="monthlyBenefits" class="block mb-1 text-sm font-medium text-gray-300">Monthly Gov. Benefits ($)</label>
+                            <input type="number" id="monthlyBenefits" value="250.75" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                        </div>
+                        <div>
+                            <label for="annualInterestRate" class="block mb-1 text-sm font-medium text-gray-300">Annual Savings Interest Rate (%)</label>
+                            <input type="number" id="annualInterestRate" value="0.45" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                        </div>
+                        <div>
+                            <label for="initialSavings" class="block mb-1 text-sm font-medium text-gray-300">Starting Savings Balance ($)</label>
+                            <input type="number" id="initialSavings" value="11326.78" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                        </div>
+                        <div>
+                            <label for="initialFloat" class="block mb-1 text-sm font-medium text-gray-300">Starting Chequing/Float ($)</label>
+                            <input type="number" id="initialFloat" value="5818.76" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                        </div>
+                        <div>
+                            <label for="customSavingsGoalInput" class="block mb-1 text-sm font-medium text-gray-300">Custom Total Asset Goal ($)</label>
+                            <input type="number" id="customSavingsGoalInput" value="75000" step="1000" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                        </div>
+                         <div class="md:col-span-2 lg:col-span-3">
+                            <p class="text-xs sm:text-sm text-gray-400 mt-2 leading-relaxed">
+                                <strong>Wage Increase Model:</strong>
+                                <br>Your initial wage (until Oct 2025): <span id="currentWageDisplay" class="font-semibold text-blue-300">$16.10</span>.
+                                <br>Oct 2025 Wage: Your initial wage + $0.80.
+                                <br>Oct 2026+ Wage: Future NS minimum wage + a premium.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="results" class="mb-8">
+                    <div class="bg-gray-800 shadow-2xl rounded-lg p-6">
+                        <h2 class="text-xl sm:text-2xl font-semibold mb-4 text-blue-300">Max Monthly Discretionary Spending</h2>
+                        <p class="text-gray-300 text-sm mb-2">To save at least $30,000 in your savings account over the next 2 years:</p>
+                        <p id="maxSpendingResult" class="text-2xl sm:text-3xl font-bold text-green-400">$0.00</p>
+                        <p id="maxSpendingNote" class="text-xs text-gray-400 mt-1"></p>
+                    </div>
+                </section>
+
+                <section id="tipsPanel" class="mb-8">
+                    <div id="tipsToggle" class="tips-collapsible-trigger">
+                        <h3 class="text-lg font-semibold text-blue-300">Financial Tips & Definitions</h3>
+                        <svg class="arrow-icon text-blue-300 w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <div id="tipsContent" class="tips-collapsible-content">
+                        <h4>Dynamic Suggestions:</h4>
+                        <ul id="dynamicTipsList" class="mb-3">
+                            <li>Calculating suggestions...</li>
+                        </ul>
+                        <h4>Definitions:</h4>
+                        <p><strong>Gross Monthly Income:</strong> Total earnings before any deductions (taxes, CPP, EI).</p>
+                        <p><strong>Net Monthly Income:</strong> Income after payroll deductions (take-home pay from employment).</p>
+                        <p><strong>NMS (Net Monthly Savings):</strong> (Net Monthly Income + Monthly Benefits) - Fixed Monthly Expenses. This is the amount available for savings or discretionary spending each month.</p>
+                        <p><strong>Total Assets:</strong> The sum of your Savings Balance and Chequing/Float amount.</p>
+                    </div>
+                </section>
+
+                 <footer class="text-center mt-auto py-4 border-t border-gray-700">
+                    <p class="text-xs sm:text-sm text-gray-500">&copy; <span id="currentYearFooter"></span> Financial Calculator. All figures are estimates.</p>
+                </footer>
+            </div>
+        </main>
+
+        <aside class="right-sidebar bg-gray-800 p-6 flex flex-col h-screen overflow-hidden border-l border-gray-700 w-[480px] min-w-[450px] lg:w-[560px] lg:min-w-[520px] xl:w-[680px] xl:min-w-[640px] 2xl:w-[800px] 2xl:min-w-[760px]">
+            <h2 class="text-2xl font-semibold text-blue-400 mb-4">Financial Projection</h2>
+            <div class="projection-display-wrapper">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-sm text-gray-400">Detailed monthly breakdown.</p>
+                    <div>
+                        <label for="projectionTimelineSelect" class="text-sm text-gray-300 mr-2">Projection for:</label>
+                        <select id="projectionTimelineSelect" class="text-sm">
+                            <option value="12">1 Year</option>
+                            <option value="24">2 Years</option>
+                            <option value="36">3 Years</option>
+                            <option value="72" selected>6 Years</option>
+                            <option value="120">10 Years</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4 p-4 bg-gray-700 rounded-md shadow">
+                     <h3 class="text-lg font-semibold mb-3 text-blue-200">Financial Goals Timeline</h3>
+                     <div>
+                        <p class="text-gray-300 text-sm">Time to Reach Custom Goal (<span id="customGoalDisplayValue" class="font-semibold"></span>):</p>
+                        <p id="customGoalResult" class="text-md font-semibold text-yellow-400">Calculating...</p>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead>
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Wage</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Gross Income</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Net Income</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">NMS</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Savings Bal.</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Total Assets</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectionTableBody" class="bg-gray-800 divide-y divide-gray-700">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // --- Configuration & Constants (Calculator) ---
+        const SIMULATION_START_YEAR = 2025;
+        const SIMULATION_START_MONTH = 3; // April (0-indexed)
+        const MIN_WAGE_OCT_2025_NS = 16.50;
+        const MIN_WAGE_APR_2025_NS = 15.70;
+        const ANNUAL_MIN_WAGE_INCREASE = 0.65;
+        const DEFAULT_STARTING_WAGE_FOR_JUMP_CALC = 16.10;
+        const DEFAULT_OCT_2025_WAGE_FOR_JUMP_CALC = 16.90;
+        const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        // --- DOM Elements (Calculator) ---
+        const DOMElements = {
+            startingWage: document.getElementById('startingWage'),
+            hoursPerWeek: document.getElementById('hoursPerWeek'),
+            payrollDeductionRate: document.getElementById('payrollDeductionRate'),
+            monthlyExpenses: document.getElementById('monthlyExpenses'),
+            monthlyBenefits: document.getElementById('monthlyBenefits'),
+            annualInterestRate: document.getElementById('annualInterestRate'),
+            initialSavings: document.getElementById('initialSavings'),
+            initialFloat: document.getElementById('initialFloat'),
+            customSavingsGoalInput: document.getElementById('customSavingsGoalInput'),
+            currentWageDisplay: document.getElementById('currentWageDisplay'),
+            maxSpendingResult: document.getElementById('maxSpendingResult'),
+            maxSpendingNote: document.getElementById('maxSpendingNote'),
+            customGoalDisplayValue: document.getElementById('customGoalDisplayValue'),
+            customGoalResult: document.getElementById('customGoalResult'),
+            projectionTableBody: document.getElementById('projectionTableBody'),
+            currentYearFooter: document.getElementById('currentYearFooter'),
+            projectionTimelineSelect: document.getElementById('projectionTimelineSelect'),
+            tipsToggle: document.getElementById('tipsToggle'),
+            tipsContent: document.getElementById('tipsContent'),
+            tipsArrowIcon: document.querySelector('#tipsToggle .arrow-icon'),
+            dynamicTipsList: document.getElementById('dynamicTipsList'),
+            loadStudentProfileBtn: document.getElementById('loadStudentProfileBtn'),
+            loadJobSeekerProfileBtn: document.getElementById('loadJobSeekerProfileBtn'),
+        };
+
+        // --- DOM Elements (Music Player) ---
+        const musicPlayerDOMElements = {
+            mp3Upload: document.getElementById('mp3Upload'),
+            playPauseBtn: document.getElementById('playPauseBtn'),
+            stopBtn: document.getElementById('stopBtn'),
+            volumeSlider: document.getElementById('volumeSlider'),
+            volumeValue: document.getElementById('volumeValue'),
+            decibelLevel: document.getElementById('decibelLevel'),
+            audioVisualizer: document.getElementById('audioVisualizer'),
+            playlistUI: document.getElementById('playlist'),
+            clearPlaylistBtn: document.getElementById('clearPlaylistBtn'),
+            emptyPlaylistMessage: document.getElementById('emptyPlaylistMessage'),
+            songTimeline: document.getElementById('songTimeline'),
+            currentTimeDisplay: document.getElementById('currentTimeDisplay'),
+            totalDurationDisplay: document.getElementById('totalDurationDisplay')
+        };
+
+        // --- Music Player State & Web Audio API ---
+        let audioContext;
+        let analyserNode;
+        let gainNode;
+        let currentSource = null;   // The current AudioBufferSourceNode
+        let playlist = [];          // Array of { name: string, buffer: AudioBuffer, file: File }
+        let currentTrackIndex = -1; // Index of the loaded/playing track in the playlist
+        let isPlaying = false;      // True if audio is currently playing
+        let visualizerAnimationId;
+        let timelineUpdateId;
+
+        // New state variables for robust playback control:
+        let currentPlaybackTime = 0;        // Current position (seconds) of the playing/cued track. Master time.
+        let _playbackAudioContextStartTime = 0; // audioContext.currentTime when currentSource *started* playing.
+        let _playbackInitialOffset = 0;     // Offset (seconds) in audio buffer where currentSource *started*.
+
+        const FFT_SIZE = 256;
+
+        // --- Pre-defined Profiles ---
+        const userProfiles = {
+            student: {
+                startingWage: MIN_WAGE_APR_2025_NS,
+                hoursPerWeek: 15,
+                payrollDeductionRate: 7.61,
+                monthlyExpenses: 650,
+                monthlyBenefits: 100,
+                annualInterestRate: 0.45,
+                initialSavings: 500,
+                initialFloat: 200,
+                customSavingsGoalInput: 5000
+            },
+            jobSeeker: {
+                startingWage: 0,
+                hoursPerWeek: 0,
+                payrollDeductionRate: 0,
+                monthlyExpenses: 800,
+                monthlyBenefits: 1200,
+                annualInterestRate: 0.45,
+                initialSavings: 1000,
+                initialFloat: 300,
+                customSavingsGoalInput: 10000
+            }
+        };
+
+        // --- Helper Functions (Calculator) ---
+        const getNumericValue = (element) => parseFloat(element.value) || 0;
+        const formatCurrency = (amount) => {
+            if (typeof amount !== 'number' || isNaN(amount)) return '$--.--';
+            return amount.toLocaleString('en-CA', { style: 'currency', currency: 'CAD' });
+        };
+        // --- Helper Function (Music Player - Format Time) ---
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            const formattedSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
+            return `${minutes}:${formattedSeconds}`;
+        }
+
+        // --- Core Calculation Logic (Calculator) ---
+        function getHourlyWageForMonth(monthIndex, assumptions) {
+            const currentDate = new Date(SIMULATION_START_YEAR, SIMULATION_START_MONTH + monthIndex, 1);
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+            const wageJumpAmountOct2025 = DEFAULT_OCT_2025_WAGE_FOR_JUMP_CALC - DEFAULT_STARTING_WAGE_FOR_JUMP_CALC;
+            const userWageInOct2025 = assumptions.startingWage + wageJumpAmountOct2025;
+            const dynamicPremiumOverMinWage = userWageInOct2025 - MIN_WAGE_OCT_2025_NS;
+            let wage;
+            if (currentYear < 2025 || (currentYear === 2025 && currentMonth < 9)) wage = assumptions.startingWage;
+            else if (currentYear === 2025 && currentMonth >= 9) wage = userWageInOct2025;
+            else {
+                let minWageReferenceYear = currentYear;
+                if (currentMonth < 9) minWageReferenceYear = currentYear - 1;
+                const yearsSinceOct2025MinWage = minWageReferenceYear - 2025;
+                const currentMinWage = MIN_WAGE_OCT_2025_NS + (yearsSinceOct2025MinWage * ANNUAL_MIN_WAGE_INCREASE);
+                wage = currentMinWage + dynamicPremiumOverMinWage;
+            }
+            return Math.max(0, wage);
+        }
+
+        function calculateMaxMonthlySpending(assumptions) {
+            const N_MONTHS = 24;
+            const targetSavingsIncrease = 30000;
+            const monthlyInterestRate = assumptions.annualInterestRate / 100 / 12;
+            const initialSavings = assumptions.initialSavings;
+            let sumNMSPotentialCompounded = 0;
+            let sumInterestFactors = 0;
+            let firstMonthNMS = 0;
+
+            for (let i = 0; i < N_MONTHS; i++) {
+                const hourlyWage = getHourlyWageForMonth(i, assumptions);
+                const grossMonthlyIncome = hourlyWage * assumptions.hoursPerWeek * 52 / 12;
+                const netMonthlyIncome = grossMonthlyIncome * (1 - assumptions.payrollDeductionRate / 100);
+                const nmsPotential = netMonthlyIncome + assumptions.monthlyBenefits - assumptions.monthlyExpenses;
+                if (i === 0) firstMonthNMS = nmsPotential;
+                sumNMSPotentialCompounded += nmsPotential * Math.pow(1 + monthlyInterestRate, N_MONTHS - 1 - i);
+                sumInterestFactors += Math.pow(1 + monthlyInterestRate, N_MONTHS - 1 - i);
+            }
+            let maxSpending;
+            if (sumInterestFactors === 0) {
+                maxSpending = (monthlyInterestRate === 0) ? (initialSavings * 0 - targetSavingsIncrease + sumNMSPotentialCompounded) / N_MONTHS : -Infinity;
+            } else {
+                 maxSpending = (initialSavings * (Math.pow(1 + monthlyInterestRate, N_MONTHS) - 1) - targetSavingsIncrease + sumNMSPotentialCompounded) / sumInterestFactors;
+            }
+            DOMElements.maxSpendingResult.textContent = formatCurrency(maxSpending);
+            DOMElements.maxSpendingResult.classList.toggle('text-red-400', maxSpending < 0);
+            DOMElements.maxSpendingResult.classList.toggle('text-green-400', maxSpending >= 0);
+            DOMElements.maxSpendingNote.textContent = maxSpending < 0 ? `Reduce costs or increase income by ${formatCurrency(Math.abs(maxSpending))}/month to meet goal.` : `Estimated max discretionary spending per month.`;
+
+            updateDynamicTips(firstMonthNMS, assumptions);
+        }
+
+        function runProjections(assumptions) {
+            const selectedTimelineMonths = parseInt(DOMElements.projectionTimelineSelect.value);
+            const selectedTimelineYears = selectedTimelineMonths / 12;
+            DOMElements.projectionTableBody.innerHTML = '';
+            let currentSavings = assumptions.initialSavings;
+            const floatAmount = assumptions.initialFloat;
+            let totalAssets = currentSavings + floatAmount;
+            const customGoalAmount = getNumericValue(DOMElements.customSavingsGoalInput);
+            DOMElements.customGoalDisplayValue.textContent = formatCurrency(customGoalAmount);
+            let customGoalReached = false;
+
+            if (customGoalAmount <= 0) {
+                DOMElements.customGoalResult.textContent = "Please enter a positive goal amount.";
+                DOMElements.customGoalResult.className = 'text-md font-semibold text-red-400';
+            } else {
+                DOMElements.customGoalResult.textContent = `Not reached within ${selectedTimelineYears} year(s)`;
+                DOMElements.customGoalResult.className = 'text-md font-semibold text-yellow-400';
+            }
+
+            for (let i = 0; i < selectedTimelineMonths; i++) {
+                const currentDate = new Date(SIMULATION_START_YEAR, SIMULATION_START_MONTH + i, 1);
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                const hourlyWage = getHourlyWageForMonth(i, assumptions);
+                const grossMonthlyIncome = hourlyWage * assumptions.hoursPerWeek * 52 / 12;
+                const netMonthlyIncome = grossMonthlyIncome * (1 - assumptions.payrollDeductionRate / 100);
+                const nmsContribution = netMonthlyIncome + assumptions.monthlyBenefits - assumptions.monthlyExpenses;
+                currentSavings = currentSavings * (1 + assumptions.annualInterestRate / 100 / 12) + nmsContribution;
+                totalAssets = currentSavings + floatAmount;
+
+                if (customGoalAmount > 0 && !customGoalReached && totalAssets >= customGoalAmount) {
+                    DOMElements.customGoalResult.textContent = `${MONTH_NAMES[month]} ${year}`;
+                    DOMElements.customGoalResult.className = 'text-md font-semibold text-green-400';
+                    customGoalReached = true;
+                }
+                const row = DOMElements.projectionTableBody.insertRow();
+                row.innerHTML = `
+                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-300">${MONTH_NAMES[month]} ${year}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-300">${formatCurrency(hourlyWage)}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-300">${formatCurrency(grossMonthlyIncome)}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-300">${formatCurrency(netMonthlyIncome)}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-300 ${nmsContribution < 0 ? 'text-red-400' : 'text-green-400'}">${formatCurrency(nmsContribution)}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-300">${formatCurrency(currentSavings)}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold ${totalAssets < 0 ? 'text-red-400' : 'text-blue-300'}">${formatCurrency(totalAssets)}</td>
+                `;
+            }
+        }
+
+        function updateAllCalculations() {
+            const assumptions = {
+                startingWage: getNumericValue(DOMElements.startingWage),
+                hoursPerWeek: getNumericValue(DOMElements.hoursPerWeek),
+                payrollDeductionRate: getNumericValue(DOMElements.payrollDeductionRate),
+                monthlyExpenses: getNumericValue(DOMElements.monthlyExpenses),
+                monthlyBenefits: getNumericValue(DOMElements.monthlyBenefits),
+                annualInterestRate: getNumericValue(DOMElements.annualInterestRate),
+                initialSavings: getNumericValue(DOMElements.initialSavings),
+                initialFloat: getNumericValue(DOMElements.initialFloat),
+            };
+            DOMElements.currentWageDisplay.textContent = formatCurrency(assumptions.startingWage);
+            calculateMaxMonthlySpending(assumptions);
+            runProjections(assumptions);
+        }
+
+        // --- Tips Panel Logic ---
+        function toggleTipsPanel() {
+            const content = DOMElements.tipsContent;
+            const arrow = DOMElements.tipsArrowIcon;
+            content.classList.toggle('expanded');
+            arrow.classList.toggle('rotated'); // Toggle rotation class
+            content.style.maxHeight = content.classList.contains('expanded') ? content.scrollHeight + "px" : "0px";
+        }
+
+        function updateDynamicTips(currentNMS, assumptions) {
+            const tipsList = DOMElements.dynamicTipsList;
+            tipsList.innerHTML = '';
+
+            if (currentNMS < 0) {
+                const tipItem = document.createElement('li');
+                tipItem.textContent = `Your current Net Monthly Savings (NMS) is ${formatCurrency(currentNMS)}. Consider reducing expenses by ${formatCurrency(Math.abs(currentNMS))} or increasing income to save more.`;
+                tipsList.appendChild(tipItem);
+            } else if (currentNMS < 100) {
+                 const tipItem = document.createElement('li');
+                tipItem.textContent = `Your NMS is ${formatCurrency(currentNMS)}. While positive, increasing this could help you reach goals faster. Explore options to boost income or trim non-essential spending.`;
+                tipsList.appendChild(tipItem);
+            } else {
+                const tipItem = document.createElement('li');
+                tipItem.textContent = `Your NMS of ${formatCurrency(currentNMS)} is a good start! Keep monitoring your budget.`;
+                tipsList.appendChild(tipItem);
+            }
+
+            if (assumptions.monthlyExpenses > ( (assumptions.startingWage * assumptions.hoursPerWeek * 52 / 12) * (1 - assumptions.payrollDeductionRate/100) * 0.6) && assumptions.hoursPerWeek > 0 ) {
+                const tipItem = document.createElement('li');
+                tipItem.textContent = `Your fixed monthly expenses seem relatively high compared to your employment income. Review your budget for potential savings.`;
+                tipsList.appendChild(tipItem);
+            }
+            if (tipsList.children.length === 0) {
+                 const tipItem = document.createElement('li');
+                tipItem.textContent = `Looking good! Continue to monitor your finances and adjust as needed.`;
+                tipsList.appendChild(tipItem);
+            }
+        }
+
+        // --- Profile Loading Logic ---
+        function loadProfile(profileName) {
+            const profileData = userProfiles[profileName];
+            if (!profileData) return;
+
+            DOMElements.startingWage.value = profileData.startingWage;
+            DOMElements.hoursPerWeek.value = profileData.hoursPerWeek;
+            DOMElements.payrollDeductionRate.value = profileData.payrollDeductionRate;
+            DOMElements.monthlyExpenses.value = profileData.monthlyExpenses;
+            DOMElements.monthlyBenefits.value = profileData.monthlyBenefits;
+            DOMElements.annualInterestRate.value = profileData.annualInterestRate;
+            DOMElements.initialSavings.value = profileData.initialSavings;
+            DOMElements.initialFloat.value = profileData.initialFloat;
+            DOMElements.customSavingsGoalInput.value = profileData.customSavingsGoalInput;
+
+            updateAllCalculations();
+        }
+
+
+        // --- Music Player Logic (REVISED) ---
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyserNode = audioContext.createAnalyser();
+                analyserNode.fftSize = FFT_SIZE;
+                gainNode = audioContext.createGain();
+                analyserNode.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                gainNode.gain.value = musicPlayerDOMElements.volumeSlider.value / 100;
+            }
+        }
+
+        function loadAndPlayTrack(index, offset = 0) {
+            if (index < 0 || index >= playlist.length) {
+                console.warn("loadAndPlayTrack: Invalid index", index);
+                return;
+            }
+            initAudioContext(); // Ensure AudioContext is ready
+
+            if (currentSource) { // Stop and disconnect any previous source
+                currentSource.onended = null; // Important: prevent old onended from firing
+                try { currentSource.stop(); } catch (e) { /* ignore if already stopped */ }
+                currentSource.disconnect();
+                currentSource = null;
+            }
+
+            currentTrackIndex = index;
+            const track = playlist[currentTrackIndex];
+
+            if (!track || !track.buffer) {
+                console.error("loadAndPlayTrack: Track or track buffer not found for index:", index, track);
+                stopPlayback(); // Reset player state if track is invalid
+                return;
+            }
+
+            currentSource = audioContext.createBufferSource();
+            currentSource.buffer = track.buffer;
+            currentSource.connect(analyserNode);
+            currentSource.onended = handleTrackEnd; // Set up handler for when track finishes naturally
+
+            const validOffset = Math.max(0, Math.min(offset, track.buffer.duration));
+            currentPlaybackTime = validOffset; // Update master playback time
+
+            // Record audio context time and offset for accurate timeline updates
+            _playbackAudioContextStartTime = audioContext.currentTime;
+            _playbackInitialOffset = validOffset;
+
+            currentSource.start(0, validOffset); // Start playback from the specified offset
+
+            isPlaying = true;
+            musicPlayerDOMElements.playPauseBtn.textContent = 'Pause';
+            musicPlayerDOMElements.songTimeline.disabled = false;
+            musicPlayerDOMElements.songTimeline.max = track.buffer.duration;
+            musicPlayerDOMElements.songTimeline.value = validOffset; // Sync timeline
+            musicPlayerDOMElements.currentTimeDisplay.textContent = formatTime(validOffset);
+            musicPlayerDOMElements.totalDurationDisplay.textContent = formatTime(track.buffer.duration);
+
+            updatePlaylistUI(); // Highlight playing track, etc.
+            startVisualizer();
+            startTimelineUpdater();
+        }
+
+        function handleTrackEnd() {
+            // This function is called when currentSource.onended fires.
+            // It should only proceed with "next track" or "end of playlist" logic
+            // if the track ended naturally (i.e., isPlaying was true).
+            if (isPlaying) {
+                // Track ended naturally
+                currentPlaybackTime = musicPlayerDOMElements.songTimeline.max || 0;
+                musicPlayerDOMElements.songTimeline.value = currentPlaybackTime;
+                musicPlayerDOMElements.currentTimeDisplay.textContent = formatTime(currentPlaybackTime);
+
+                isPlaying = false; // Transition to paused state for the ended track
+                musicPlayerDOMElements.playPauseBtn.textContent = 'Play';
+                updatePlaylistUI(); // Update highlighting
+
+                if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId);
+                if (timelineUpdateId) cancelAnimationFrame(timelineUpdateId);
+                musicPlayerDOMElements.decibelLevel.textContent = '--';
+
+                // TODO: Implement auto-play next or repeat logic here if desired
+                // e.g., if (currentTrackIndex < playlist.length - 1) loadAndPlayTrack(currentTrackIndex + 1, 0);
+            }
+            // The source is now finished and cannot be reused.
+            currentSource = null;
+        }
+
+
+        function togglePlayPause() {
+            if (playlist.length === 0) return;
+            initAudioContext();
+
+            if (isPlaying) { // Song is currently playing, so pause it
+                if (audioContext.state === 'running' && currentSource) {
+                    // currentPlaybackTime should be up-to-date from updateTimeline.
+                    // Suspending the context pauses the source at its current position.
+                    audioContext.suspend().then(() => {
+                        isPlaying = false;
+                        musicPlayerDOMElements.playPauseBtn.textContent = 'Play';
+                        if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId);
+                        if (timelineUpdateId) cancelAnimationFrame(timelineUpdateId);
+                        // currentPlaybackTime reflects the point of pause.
+                    });
+                }
+            } else { // Song is paused or stopped, so play/resume it
+                if (currentTrackIndex === -1 && playlist.length > 0) {
+                    currentTrackIndex = 0; // Default to first track if none selected
+                    currentPlaybackTime = 0; // Start from beginning
+                } else if (currentTrackIndex === -1) {
+                    return; // No tracks and no selection
+                }
+                // currentPlaybackTime holds the time to resume from (e.g., after seek or previous pause)
+
+                if (audioContext.state === 'suspended') {
+                    // If context was suspended (e.g., by previous pause), resume it.
+                    audioContext.resume().then(() => {
+                        isPlaying = true;
+                        // Adjust _playbackAudioContextStartTime for correct elapsed time calculation in updateTimeline
+                        // currentPlaybackTime = (audioContext.currentTime - _playbackAudioContextStartTime_new) + _playbackInitialOffset_old
+                        // So, _playbackAudioContextStartTime_new = audioContext.currentTime - (currentPlaybackTime - _playbackInitialOffset_old)
+                        _playbackAudioContextStartTime = audioContext.currentTime - (currentPlaybackTime - _playbackInitialOffset);
+
+                        musicPlayerDOMElements.playPauseBtn.textContent = 'Pause';
+                        startVisualizer();
+                        startTimelineUpdater();
+                    });
+                } else { // Context is 'running' (e.g., after stop, or first play, or after seek while paused)
+                    // Load and play the track from currentPlaybackTime.
+                    loadAndPlayTrack(currentTrackIndex, currentPlaybackTime);
+                }
+            }
+        }
+
+        function stopPlayback() {
+            if (currentSource) {
+                currentSource.onended = null; // Prevent handleTrackEnd from firing
+                try { currentSource.stop(); } catch (e) { /* ignore */ }
+                currentSource.disconnect();
+                currentSource = null;
+            }
+            isPlaying = false;
+            currentPlaybackTime = 0; // Reset playback time to the beginning
+            musicPlayerDOMElements.playPauseBtn.textContent = 'Play';
+            musicPlayerDOMElements.songTimeline.value = 0;
+            musicPlayerDOMElements.currentTimeDisplay.textContent = formatTime(0);
+
+            // Update total duration display if a track was loaded
+            if (currentTrackIndex !== -1 && playlist[currentTrackIndex] && playlist[currentTrackIndex].buffer) {
+                 musicPlayerDOMElements.totalDurationDisplay.textContent = formatTime(playlist[currentTrackIndex].buffer.duration);
+            } else {
+                 musicPlayerDOMElements.totalDurationDisplay.textContent = formatTime(0);
+            }
+            // Disable timeline if no track is effectively cued (optional, could leave enabled)
+            musicPlayerDOMElements.songTimeline.disabled = !(playlist.length > 0 && currentTrackIndex !== -1);
+
+
+            updatePlaylistUI(); // Update highlighting, button states
+            if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId);
+            if (timelineUpdateId) cancelAnimationFrame(timelineUpdateId);
+            musicPlayerDOMElements.decibelLevel.textContent = '--';
+            const canvas = musicPlayerDOMElements.audioVisualizer;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            if (!files.length) return;
+            initAudioContext(); // Ensure AudioContext is ready
+
+            Array.from(files).forEach(file => {
+                if (file.type === "audio/mpeg") {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        audioContext.decodeAudioData(e.target.result, (buffer) => {
+                            if (!playlist.some(track => track.name === file.name)) { // Avoid duplicates
+                                playlist.push({ name: file.name, buffer: buffer, file: file });
+                                updatePlaylistUI();
+                                // If this is the first track added and nothing is selected, select it
+                                if (playlist.length === 1 && currentTrackIndex === -1) {
+                                    currentTrackIndex = 0;
+                                    currentPlaybackTime = 0;
+                                    // Update displays for the newly selected track
+                                    musicPlayerDOMElements.songTimeline.max = buffer.duration;
+                                    musicPlayerDOMElements.totalDurationDisplay.textContent = formatTime(buffer.duration);
+                                    musicPlayerDOMElements.songTimeline.disabled = false;
+                                }
+                            }
+                        }, (error) => console.error("Error decoding audio data for " + file.name + ":", error));
+                    };
+                    reader.readAsArrayBuffer(file);
+                }
+            });
+            event.target.value = null; // Reset file input for next upload
+        }
+
+        function updatePlaylistUI() {
+            musicPlayerDOMElements.playlistUI.innerHTML = ''; // Clear existing items
+            if (playlist.length === 0) {
+                 musicPlayerDOMElements.playlistUI.appendChild(musicPlayerDOMElements.emptyPlaylistMessage);
+                 musicPlayerDOMElements.emptyPlaylistMessage.style.display = 'list-item';
+            } else {
+                musicPlayerDOMElements.emptyPlaylistMessage.style.display = 'none';
+                playlist.forEach((track, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'text-sm text-gray-300 hover:text-blue-300';
+                    // Highlight if it's the current track and is playing or paused at it
+                    if (index === currentTrackIndex) {
+                        li.classList.add('playing'); // 'playing' class for general highlight of current track
+                    }
+
+                    const songNameSpan = document.createElement('span');
+                    songNameSpan.className = 'song-name';
+                    songNameSpan.textContent = track.name;
+                    songNameSpan.onclick = () => {
+                        // When a song in the playlist is clicked, load and play it from the beginning
+                        loadAndPlayTrack(index, 0);
+                    };
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.innerHTML = '&times;'; // Multiplication sign for 'x'
+                    removeBtn.className = 'remove-song-btn';
+                    removeBtn.title = "Remove song";
+                    removeBtn.onclick = (e) => {
+                        e.stopPropagation(); // Prevent li click event
+                        removeSongFromPlaylist(index);
+                    };
+
+                    li.appendChild(songNameSpan);
+                    li.appendChild(removeBtn);
+                    musicPlayerDOMElements.playlistUI.appendChild(li);
+                });
+            }
+            const hasTracks = playlist.length > 0;
+            musicPlayerDOMElements.playPauseBtn.disabled = !hasTracks;
+            musicPlayerDOMElements.stopBtn.disabled = !hasTracks;
+            musicPlayerDOMElements.clearPlaylistBtn.disabled = !hasTracks;
+            // Timeline is enabled if a track is loaded (currentTrackIndex is valid)
+            musicPlayerDOMElements.songTimeline.disabled = !(hasTracks && currentTrackIndex !== -1 && playlist[currentTrackIndex] && playlist[currentTrackIndex].buffer);
+
+
+            if (!hasTracks || currentTrackIndex === -1 || !playlist[currentTrackIndex] || !playlist[currentTrackIndex].buffer) {
+                // If no tracks or no valid track selected, reset timeline displays
+                musicPlayerDOMElements.songTimeline.value = 0;
+                musicPlayerDOMElements.currentTimeDisplay.textContent = formatTime(0);
+                musicPlayerDOMElements.totalDurationDisplay.textContent = formatTime(0);
+                musicPlayerDOMElements.songTimeline.max = 0; // Ensure max is 0 if no duration
+            } else if (playlist[currentTrackIndex] && playlist[currentTrackIndex].buffer) {
+                // If a valid track is selected but not playing, ensure its duration is shown
+                 if (!isPlaying) {
+                    musicPlayerDOMElements.totalDurationDisplay.textContent = formatTime(playlist[currentTrackIndex].buffer.duration);
+                    musicPlayerDOMElements.songTimeline.max = playlist[currentTrackIndex].buffer.duration;
+                 }
+            }
+        }
+
+        function removeSongFromPlaylist(indexToRemove) {
+            if (indexToRemove < 0 || indexToRemove >= playlist.length) return;
+
+            const wasPlayingRemovedSong = (indexToRemove === currentTrackIndex);
+            playlist.splice(indexToRemove, 1);
+
+            if (wasPlayingRemovedSong) {
+                stopPlayback(); // Stop playback if the playing song was removed
+                currentTrackIndex = -1; // No track selected now
+                if (playlist.length > 0) { // If playlist still has songs, select the first one
+                    currentTrackIndex = 0;
+                    currentPlaybackTime = 0;
+                     if (playlist[currentTrackIndex] && playlist[currentTrackIndex].buffer) {
+                        musicPlayerDOMElements.songTimeline.max = playlist[currentTrackIndex].buffer.duration;
+                        musicPlayerDOMElements.totalDurationDisplay.textContent = formatTime(playlist[currentTrackIndex].buffer.duration);
+                        musicPlayerDOMElements.currentTimeDisplay.textContent = formatTime(0);
+                        musicPlayerDOMElements.songTimeline.value = 0;
+                     }
+                }
+            } else if (indexToRemove < currentTrackIndex) {
+                currentTrackIndex--; // Adjust index if a song before the current one was removed
+            }
+            updatePlaylistUI();
+        }
+
+        function clearPlaylist() {
+            stopPlayback();
+            playlist = [];
+            currentTrackIndex = -1;
+            currentPlaybackTime = 0;
+            updatePlaylistUI();
+        }
+
+        function updateVolume() {
+            if (gainNode) {
+                const volume = musicPlayerDOMElements.volumeSlider.value / 100;
+                gainNode.gain.value = volume;
+                musicPlayerDOMElements.volumeValue.textContent = musicPlayerDOMElements.volumeSlider.value;
+            }
+        }
+
+        function drawVisualizer() {
+            if (!isPlaying || !analyserNode || audioContext.state === 'suspended') {
+                if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId);
+                return;
+            }
+            visualizerAnimationId = requestAnimationFrame(drawVisualizer);
+
+            const bufferLength = analyserNode.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            analyserNode.getByteFrequencyData(dataArray);
+
+            const canvas = musicPlayerDOMElements.audioVisualizer;
+            const ctx = canvas.getContext('2d');
+            const WIDTH = canvas.width;
+            const HEIGHT = canvas.height;
+
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+            const barWidth = (WIDTH / bufferLength) * 2.5;
+            let barHeight;
+            let x = 0;
+            let sum = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] / 2.5;
+                sum += dataArray[i];
+                const blueIntensity = Math.min(255, 50 + dataArray[i]);
+                ctx.fillStyle = `rgb(50, ${Math.min(100 + dataArray[i]/2, 200)}, ${blueIntensity})`;
+                ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+                x += barWidth + 1;
+            }
+
+            const average = sum / bufferLength;
+            const relativeIntensity = Math.max(0, Math.min(100, Math.round(average * 100 / 128)));
+            musicPlayerDOMElements.decibelLevel.textContent = relativeIntensity;
+        }
+
+        function startVisualizer() {
+            if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId);
+            drawVisualizer();
+        }
+
+        function updateTimeline() {
+            if (!isPlaying || !currentSource || audioContext.state === 'suspended' || !(currentTrackIndex !== -1 && playlist[currentTrackIndex] && playlist[currentTrackIndex].buffer)) {
+                if (timelineUpdateId) cancelAnimationFrame(timelineUpdateId);
+                return;
+            }
+            timelineUpdateId = requestAnimationFrame(updateTimeline);
+
+            // Calculate elapsed time for the current source
+            const elapsedTime = (audioContext.currentTime - _playbackAudioContextStartTime) + _playbackInitialOffset;
+            const duration = playlist[currentTrackIndex].buffer.duration;
+
+            currentPlaybackTime = Math.max(0, Math.min(elapsedTime, duration)); // Update global currentPlaybackTime
+
+            if (currentPlaybackTime >= 0 && currentPlaybackTime <= duration) {
+                musicPlayerDOMElements.songTimeline.value = currentPlaybackTime;
+                musicPlayerDOMElements.currentTimeDisplay.textContent = formatTime(currentPlaybackTime);
+            } else if (currentPlaybackTime > duration && !currentSource.loop) { // Check !loop to prevent issues if loop is ever added
+                // This case should ideally be handled by onended, but as a fallback:
+                musicPlayerDOMElements.songTimeline.value = duration;
+                musicPlayerDOMElements.currentTimeDisplay.textContent = formatTime(duration);
+            }
+        }
+
+
+        function startTimelineUpdater() {
+            if (timelineUpdateId) cancelAnimationFrame(timelineUpdateId);
+            updateTimeline();
+        }
+
+        function handleTimelineInput(event) { // Renamed from handleTimelineSeek for clarity of event type
+            // This function is called on 'input' event from the timeline slider
+            if (!audioContext || !(currentTrackIndex !== -1 && playlist[currentTrackIndex] && playlist[currentTrackIndex].buffer)) {
+                musicPlayerDOMElements.songTimeline.value = 0;
+                musicPlayerDOMElements.currentTimeDisplay.textContent = formatTime(0);
+                return;
+            }
+
+            const seekToTime = parseFloat(event.target.value);
+            const duration = playlist[currentTrackIndex].buffer.duration;
+            currentPlaybackTime = Math.max(0, Math.min(seekToTime, duration)); // Update global currentPlaybackTime
+
+            musicPlayerDOMElements.currentTimeDisplay.textContent = formatTime(currentPlaybackTime);
+            // songTimeline.value is already currentPlaybackTime due to the 'input' event
+
+            if (currentSource) { // Stop any existing source to prepare for seek
+                currentSource.onended = null; // Prevent onended from firing due to this stop
+                try { currentSource.stop(); } catch (e) { /* ignore if already stopped */ }
+                currentSource.disconnect();
+                currentSource = null; // Nullify to ensure a new one is made if needed
+            }
+
+            if (isPlaying) {
+                // If it was playing, immediately restart playback from the new currentPlaybackTime
+                loadAndPlayTrack(currentTrackIndex, currentPlaybackTime);
+            } else {
+                // If it was paused, it remains paused. currentPlaybackTime is now set to the seeked position.
+                // The next call to togglePlayPause will use this currentPlaybackTime.
+                musicPlayerDOMElements.playPauseBtn.textContent = 'Play';
+                // Ensure total duration is displayed correctly if it wasn't already
+                musicPlayerDOMElements.totalDurationDisplay.textContent = formatTime(duration);
+            }
+        }
+
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Calculator Init
+            DOMElements.currentYearFooter.textContent = new Date().getFullYear();
+            const calculatorInputFields = [
+                DOMElements.startingWage, DOMElements.hoursPerWeek, DOMElements.payrollDeductionRate,
+                DOMElements.monthlyExpenses, DOMElements.monthlyBenefits, DOMElements.annualInterestRate,
+                DOMElements.initialSavings, DOMElements.initialFloat, DOMElements.customSavingsGoalInput,
+                DOMElements.projectionTimelineSelect
+            ];
+            calculatorInputFields.forEach(field => {
+                if (field) {
+                    const eventType = field.tagName === 'SELECT' ? 'change' : 'input';
+                    field.addEventListener(eventType, updateAllCalculations);
+                }
+            });
+
+            if (DOMElements.tipsToggle) {
+                DOMElements.tipsToggle.addEventListener('click', toggleTipsPanel);
+            }
+            if (DOMElements.loadStudentProfileBtn) {
+                DOMElements.loadStudentProfileBtn.addEventListener('click', () => loadProfile('student'));
+            }
+            if (DOMElements.loadJobSeekerProfileBtn) {
+                DOMElements.loadJobSeekerProfileBtn.addEventListener('click', () => loadProfile('jobSeeker'));
+            }
+            updateAllCalculations();
+
+            // Music Player Init
+            musicPlayerDOMElements.mp3Upload.addEventListener('change', handleFileUpload);
+            musicPlayerDOMElements.playPauseBtn.addEventListener('click', togglePlayPause);
+            musicPlayerDOMElements.stopBtn.addEventListener('click', stopPlayback);
+            musicPlayerDOMElements.volumeSlider.addEventListener('input', updateVolume);
+            musicPlayerDOMElements.clearPlaylistBtn.addEventListener('click', clearPlaylist);
+            musicPlayerDOMElements.songTimeline.addEventListener('input', handleTimelineInput); // Use 'input' for live scrubbing
+            updatePlaylistUI(); // Initial UI setup for playlist and controls
+        });
+    </script>
+</body>
+</html>
