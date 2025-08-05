@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music Player Landing Page</title>
-    <link type="image/png" sizes="16x16" rel="icon" href="./icons8-star-connect-color-16.png">
-    <link type="image/png" sizes="32x32" rel="icon" href="./icons8-star-connect-color-32.png">
-    <link type="image/png" sizes="96x96" rel="icon" href="./icons8-star-connect-color-96.png">
+    <link type="image/png" sizes="16x16" rel="icon" href="https://placehold.co/16x16/3B82F6/FFFFFF?text=S">
+    <link type="image/png" sizes="32x32" rel="icon" href="https://placehold.co/32x32/3B82F6/FFFFFF?text=S">
+    <link type="image/png" sizes="96x96" rel="icon" href="https://placehold.co/96x96/3B82F6/FFFFFF?text=S">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
     <!-- Three.js Import Map -->
     <script type="importmap">
     {
@@ -19,128 +20,6 @@
         }
     }
     </script>
-    <style>
-        /* Custom scrollbar for webkit browsers */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1a202c; /* Tailwind gray-900 */
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4a5568; /* Tailwind gray-600 */
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #718096; /* Tailwind gray-500 */
-        }
-        
-        /* Core Layout Structure */
-        html {
-            height: 100%;
-        }
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow: hidden; /* Prevent body scroll */
-            background-color: #111827; /* gray-900 */
-        }
-        input:focus, select:focus, button:focus, input[type="range"]:focus {
-            outline: 2px solid transparent;
-            outline-offset: 2px;
-            border-color: #63b3ed; /* blue-400 */
-            box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.5);
-        }
-
-        /* App Layout */
-        .main-content-area { /* Center Player */
-            flex-grow: 1;
-            padding: 2.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        
-        /* Header */
-        .app-header {
-            padding: 1rem 2rem;
-            background-color: #1f2937;
-            border-bottom: 1px solid #374151;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        /* Music Player Styles */
-        #threeContainer {
-            cursor: grab;
-            width: 100%;
-            max-width: 800px;
-            height: 400px;
-            background-color: #111827;
-            border-radius: 0.5rem;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
-        }
-        #threeContainer:active {
-            cursor: grabbing;
-        }
-        .player-button {
-            background-color: #4a5568;
-            color: white;
-            padding: 0.5rem;
-            border-radius: 9999px; /* circular buttons */
-            transition: background-color 0.2s, transform 0.1s;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-        }
-        .player-button:hover {
-            background-color: #6b7280;
-        }
-        .player-button:active {
-            transform: scale(0.95);
-        }
-        .player-button:disabled {
-            background-color: #374151;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-       
-        /* Autoplay Overlay */
-        #autoplay-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(17, 24, 39, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: opacity 0.5s ease-out;
-        }
-
-        /* Footer Styles */
-        .app-footer {
-            flex-shrink: 0; 
-            background-color: #111827;
-            border-top: 1px solid #374151; 
-            padding: 1rem;
-            text-align: center;
-        }
-
-    </style>
 </head>
 <body class="text-white font-sans antialiased">
     
@@ -179,7 +58,7 @@
         <p class="text-xs sm:text-sm text-gray-500">&copy; <span id="currentYearFooter"></span> Music Player & Financial Tools.</p>
     </footer>
 
-    <audio id="audioElement" preload="metadata"></audio>
+    <audio id="audioElement" preload="metadata" crossorigin="anonymous"></audio>
 
     <script type="module">
         import * as THREE from 'three';
@@ -197,17 +76,10 @@
 
         // --- Preloaded Tracks ---
         const preloadedTracks = [
-        { name: "We Will Return english", url: "assets/song1.mp3" },
-        { name: "Chill Abstract Beat", url: "assets/song2.mp3" },
-        { name: "Vorwärts, kanadische Arbeiter!", url: "assets/song3.mp3" },
-        { name: "Auf, Sozialisten, schließt die Reihen", url: "assets/song4.mp3" },
-        { name: "Blutrot Klarer Morgen", url: "assets/song5.mp3" },
-        { name: "Rust Bike", url: "assets/song6.mp3" },
-        { name: "Einheitsfrontlied ", url: "assets/song7.mp3" },
-        { name: "Die Internationale", url: "assets/song8.mp3" },
-        { name: "We Will Return", url: "assets/song9.mp3" },
-        { name: "Without the Communist Party, There Would Be No New Canada", url: "assets/song10.mp3" }
-    ];
+            { name: "SoundHelix Song 1", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { name: "SoundHelix Song 2", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { name: "SoundHelix Song 3", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+        ];
 
         // --- Music Player State & Web Audio API ---
         let audioContext;
