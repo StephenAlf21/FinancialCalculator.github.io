@@ -64,19 +64,18 @@
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow-y: auto; /* Allow sidebar to scroll if content overflows */
             border-left: 1px solid #374151; /* gray-700 */
             width: 520px;
             min-width: 500px;
         }
         .chart-container {
-            flex-grow: 1;
             position: relative;
             background-color: #111827;
             padding: 0.5rem;
             border-radius: 0.375rem;
             border: 1px solid #2d3748;
-            min-height: 300px;
+            height: 280px; /* Adjusted height */
         }
         .profile-button {
             background-color: #4a5568;
@@ -232,8 +231,12 @@
                             <p id="customGoalResult" class="text-md font-semibold text-yellow-400">Calculating...</p>
                         </div>
                     </div>
-                    <div class="chart-container">
+                    <div class="chart-container mb-6">
                         <canvas id="projectionChart"></canvas>
+                    </div>
+                    <h3 class="text-lg font-semibold text-indigo-300 mb-2">Cumulative Interest Earned</h3>
+                    <div class="chart-container">
+                        <canvas id="interestChart"></canvas>
                     </div>
                 </div>
             </aside>
@@ -346,8 +349,9 @@
             mobileMenu: document.getElementById('mobile-menu'),
         };
 
-        // --- Chart.js Instance ---
+        // --- Chart.js Instances ---
         let projectionChart;
+        let interestChart;
         
         // --- Pre-defined Profiles ---
         const userProfiles = {
@@ -450,11 +454,13 @@
             const labels = [];
             const totalAssetsData = [];
             const savingsBalanceData = [];
+            const cumulativeInterestData = [];
 
             let currentSavings = assumptions.initialSavings;
             const floatAmount = assumptions.initialFloat;
             let totalAssets = currentSavings + floatAmount;
             let customGoalReached = false;
+            let cumulativeInterest = 0;
 
             for (let i = 0; i < selectedTimelineMonths; i++) {
                 const currentDate = new Date(SIMULATION_START_YEAR, SIMULATION_START_MONTH + i, 1);
@@ -464,12 +470,17 @@
                 const grossMonthlyIncome = hourlyWage * assumptions.hoursPerWeek * 52 / 12;
                 const netMonthlyIncome = grossMonthlyIncome * (1 - assumptions.payrollDeductionRate / 100);
                 const nmsContribution = netMonthlyIncome + assumptions.monthlyBenefits - assumptions.monthlyExpenses;
-                currentSavings = currentSavings * (1 + assumptions.annualInterestRate / 100 / 12) + nmsContribution;
+                
+                const interestThisMonth = currentSavings * (assumptions.annualInterestRate / 100 / 12);
+                cumulativeInterest += interestThisMonth;
+
+                currentSavings = currentSavings + interestThisMonth + nmsContribution;
                 totalAssets = currentSavings + floatAmount;
                 
                 labels.push(`${MONTH_NAMES[month]} ${year}`);
                 totalAssetsData.push(totalAssets);
                 savingsBalanceData.push(currentSavings);
+                cumulativeInterestData.push(cumulativeInterest);
 
                 if (!customGoalReached && totalAssets >= customGoalAmount) {
                     DOMElements.customGoalResult.textContent = `${MONTH_NAMES[month]} ${year}`;
@@ -483,6 +494,11 @@
                 projectionChart.data.datasets[0].data = totalAssetsData;
                 projectionChart.data.datasets[1].data = savingsBalanceData;
                 projectionChart.update();
+            }
+            if(interestChart) {
+                interestChart.data.labels = labels;
+                interestChart.data.datasets[0].data = cumulativeInterestData;
+                interestChart.update();
             }
         }
 
@@ -521,9 +537,43 @@
         }
 
         // --- Chart Initialization ---
-        function initializeChart() {
-            const ctx = document.getElementById('projectionChart').getContext('2d');
-            projectionChart = new Chart(ctx, {
+        function initializeCharts() {
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#d1d5db' } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed.y !== null) {
+                                    label += formatCurrency(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#9ca3af' },
+                        grid: { color: 'rgba(75, 85, 99, 0.5)' }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            color: '#9ca3af',
+                            callback: function(value) { return formatCurrency(value); }
+                        },
+                        grid: { color: 'rgba(75, 85, 99, 0.5)' }
+                    }
+                }
+            };
+
+            const projectionCtx = document.getElementById('projectionChart').getContext('2d');
+            projectionChart = new Chart(projectionCtx, {
                 type: 'line',
                 data: {
                     labels: [],
@@ -543,39 +593,23 @@
                         tension: 0.4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#d1d5db' } },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) { label += ': '; }
-                                    if (context.parsed.y !== null) {
-                                        label += formatCurrency(context.parsed.y);
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            ticks: { color: '#9ca3af' },
-                            grid: { color: 'rgba(75, 85, 99, 0.5)' }
-                        },
-                        y: {
-                            beginAtZero: false,
-                            ticks: {
-                                color: '#9ca3af',
-                                callback: function(value) { return formatCurrency(value); }
-                            },
-                            grid: { color: 'rgba(75, 85, 99, 0.5)' }
-                        }
-                    }
-                }
+                options: commonOptions
+            });
+
+            const interestCtx = document.getElementById('interestChart').getContext('2d');
+            interestChart = new Chart(interestCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Cumulative Interest',
+                        data: [],
+                        backgroundColor: 'rgba(250, 204, 21, 0.6)', // yellow-400
+                        borderColor: 'rgba(250, 204, 21, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: commonOptions
             });
         }
 
@@ -583,7 +617,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             DOMElements.currentYearFooter.textContent = new Date().getFullYear();
             lucide.createIcons();
-            initializeChart();
+            initializeCharts();
 
             // Mobile menu toggle
             DOMElements.mobileMenuBtn.addEventListener('click', () => {
@@ -616,3 +650,4 @@
     </script>
 </body>
 </html>
+

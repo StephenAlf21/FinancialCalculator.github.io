@@ -14,108 +14,188 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <!-- Lucide icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Shared stylesheet -->
-  <link rel="stylesheet" href="style.css">
-</head>
-<body class="antialiased bg-slate-900 text-slate-200 flex flex-col min-h-screen">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
-  <!-- Header & Navigation -->
-  <header class="sticky top-0 bg-slate-800/60 backdrop-blur-md z-50">
-    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-      <div class="flex items-center gap-2 text-white text-2xl font-bold">
-        <i data-lucide="music-4" class="text-indigo-400"></i>
-        <span>Synth</span>
-      </div>
-      <div class="hidden md:flex space-x-8">
-        <a href="index.html" class="hover:text-indigo-400 transition-colors">Home</a>
-        <a href="features.html" class="hover:text-indigo-400 transition-colors">Features</a>
-        <a href="about.html" class="text-indigo-400 font-semibold">About</a>
-        <a href="contact.html" class="hover:text-indigo-400 transition-colors">Contact</a>
-      </div>
-      <button id="mobile-menu-btn" class="md:hidden text-slate-300">
-        <i data-lucide="menu" class="w-6 h-6"></i>
-      </button>
-    </nav>
-    <div id="mobile-menu" class="hidden bg-slate-800 px-6 pb-4 md:hidden">
-      <a href="index.html" class="block py-2 hover:text-indigo-400">Home</a>
-      <a href="features.html" class="block py-2 hover:text-indigo-400">Features</a>
-      <a href="about.html" class="block py-2 text-indigo-400">About</a>
-      <a href="contact.html" class="block py-2 hover:text-indigo-400">Contact</a>
-    </div>
-  </header>
+  <style>
+    /* Shared Styles for Uniformity */
+    html {
+        scroll-behavior: smooth;
+    }
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #0f172a; /* slate-900 */
+        color: #e2e8f0; /* slate-200 */
+        overflow-x: hidden;
+        overflow-y: auto; /* Ensure vertical scrolling */
+    }
+    #p5-canvas-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0.5;
+    }
+    .glass-effect {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #4f46e5;
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #6366f1;
+    }
+    /* Content specific styles */
+    .content-card section {
+        margin-bottom: 2rem;
+    }
+    .content-card h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #c4b5fd; /* violet-300 */
+        margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body class="antialiased">
 
   <!-- Generative Background Canvas -->
   <div id="p5-canvas-container" class="fixed inset-0 z-0 opacity-50"></div>
 
-  <!-- Main Content -->
-  <main class="flex-grow container mx-auto px-6 py-16 relative z-10">
-    <div class="max-w-3xl mx-auto glass-effect p-8 rounded-2xl shadow-lg">
-      <h1 class="text-4xl font-extrabold text-indigo-300 mb-6">About Synth & Financial Tools</h1>
+  <div class="relative z-10 flex flex-col min-h-screen">
+      <!-- Header & Navigation -->
+      <header class="sticky top-0 z-50 glass-effect">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+          <div class="flex items-center gap-2 text-white text-2xl font-bold">
+            <a href="index.html" class="flex items-center gap-2">
+                <i data-lucide="music-4" class="text-indigo-400"></i>
+                <span>Synth</span>
+            </a>
+          </div>
+          <div class="hidden md:flex items-center space-x-8">
+            <a href="index.html" class="text-slate-300 hover:text-indigo-400 transition-colors">Home</a>
+            <a href="features.html" class="text-slate-300 hover:text-indigo-400 transition-colors">Features</a>
+            <a href="about.html" class="text-indigo-400 font-semibold">About</a>
+            <a href="contact.html" class="text-slate-300 hover:text-indigo-400 transition-colors">Contact</a>
+          </div>
+          <a href="getstarted.html" class="hidden md:block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                Get Started
+          </a>
+          <button id="mobile-menu-btn" class="md:hidden text-slate-300">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+        </nav>
+        <div id="mobile-menu" class="hidden bg-slate-800/90 px-6 pb-4 md:hidden">
+          <a href="index.html" class="block py-2 hover:text-indigo-400">Home</a>
+          <a href="features.html" class="block py-2 hover:text-indigo-400">Features</a>
+          <a href="about.html" class="block py-2 text-indigo-400">About</a>
+          <a href="contact.html" class="block py-2 hover:text-indigo-400">Contact</a>
+          <a href="getstarted.html" class="block mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-center">Get Started</a>
+        </div>
+      </header>
 
-      <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-white mb-4">Immersive Audio-Visual Experience</h2>
-        <p class="mb-4 leading-relaxed">
-          Synth is your portal to an immersive, synthwave-inspired journey. Powered by generative p5.js art and curated ambient tracks, the player renders dynamic particles and lines that respond
-          in real time while you listen. Whether you’re chilling or working, just hit “Launch Player” and let the visuals flow.
-        </p>
-        <ul class="list-disc pl-5 space-y-2 text-slate-300">
-          <li>Playlist of 10 hand-picked tracks (classic anthems, remixes, and originals).</li>
-          <li>Play/Pause, Volume control, and seamless looping.</li>
-          <li>Responsive design—works on desktop, tablet, and mobile.</li>
-          <li>Animated UI powered by Anime.js for smooth transitions.</li>
-        </ul>
-      </section>
+      <!-- Main Content -->
+      <main class="flex-grow container mx-auto px-6 py-16 relative z-10">
+        <div class="max-w-3xl mx-auto">
+            <!-- Back Button -->
+            <div class="mb-8">
+                <a href="index.html" class="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors font-semibold">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    <span>Back to Home</span>
+                </a>
+            </div>
+            <!-- Content Card -->
+            <div class="content-card glass-effect p-8 md:p-12 rounded-2xl shadow-lg">
+              <h1 class="text-4xl font-extrabold text-indigo-300 mb-6">About Synth & Financial Tools</h1>
 
-      <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-white mb-4">Advanced Financial Calculator</h2>
-        <p class="mb-4 leading-relaxed">
-          Built specifically for Nova Scotians (but adaptable everywhere), our financial suite helps you plan your future:
-        </p>
-        <ul class="list-disc pl-5 space-y-2 text-slate-300">
-          <li>Project your savings and chequing balance over 1–10 years with Chart.js line charts.</li>
-          <li>Calculate maximum monthly discretionary spending to hit a $30 000 savings goal in 2 years.</li>
-          <li>Dynamic tips sidebar (Tippy.js tooltips) offers budgeting advice on the fly.</li>
-          <li>Load sample profiles (Student, Job Seeker) with one click.</li>
-        </ul>
-      </section>
+              <section>
+                <h2 class="text-2xl font-semibold text-white mb-4">Immersive Audio-Visual Experience</h2>
+                <p class="mb-4 leading-relaxed">
+                  Synth is your portal to an immersive, synthwave-inspired journey. Powered by generative p5.js art and curated ambient tracks, the player renders dynamic particles and lines that respond
+                  in real time while you listen. Whether you’re chilling or working, just hit “Launch Player” and let the visuals flow.
+                </p>
+                <ul class="list-disc pl-5 space-y-2 text-slate-300">
+                  <li>Playlist of 10 hand-picked tracks (classic anthems, remixes, and originals).</li>
+                  <li>Play/Pause, Volume control, and seamless looping.</li>
+                  <li>Responsive design—works on desktop, tablet, and mobile.</li>
+                  <li>Animated UI powered by Anime.js for smooth transitions.</li>
+                </ul>
+              </section>
 
-      <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-white mb-4">Tech Stack & Future Roadmap</h2>
-        <p class="mb-4 leading-relaxed">
-          We’ve leveraged modern front-end tools to keep the app fast and modular:
-        </p>
-        <ul class="list-disc pl-5 space-y-2 text-slate-300">
-          <li>📦 Tailwind CSS for utility-first styling</li>
-          <li>🎨 p5.js for generative backgrounds</li>
-          <li>🚀 Anime.js for UI animations</li>
-          <li>🔊 Web Audio API & Lucide for audio controls and icons</li>
-          <li>📈 Chart.js for financial projections</li>
-          <li>🔎 Tippy.js for contextual definitions & tips</li>
-        </ul>
-        <p class="mt-4 leading-relaxed">
-          <strong>Coming soon:</strong> a 3D Three.js visualizer (beautiful rotating spheres), user accounts & saved presets, currency converters, and premium insights dashboards.
-        </p>
-      </section>
+              <section>
+                <h2 class="text-2xl font-semibold text-white mb-4">Advanced Financial Calculator</h2>
+                <p class="mb-4 leading-relaxed">
+                  Built specifically for Nova Scotians (but adaptable everywhere), our financial suite helps you plan your future:
+                </p>
+                <ul class="list-disc pl-5 space-y-2 text-slate-300">
+                  <li>Project your savings and chequing balance over 1–10 years with Chart.js line charts.</li>
+                  <li>Calculate maximum monthly discretionary spending to hit a $30 000 savings goal in 2 years.</li>
+                  <li>Dynamic tips sidebar (Tippy.js tooltips) offers budgeting advice on the fly.</li>
+                  <li>Load sample profiles (Student, Job Seeker) with one click.</li>
+                </ul>
+              </section>
 
-      <section>
-        <h2 class="text-2xl font-semibold text-white mb-4">Built & Maintained In Nova Scotia</h2>
-        <p class="leading-relaxed">
-          Designed and coded in Halifax, Canada, with ❤️ for anyone who wants to blend music, art, and personal finance under one roof.
-        </p>
-      </section>
-    </div>
-  </main>
+              <section>
+                <h2 class="text-2xl font-semibold text-white mb-4">Tech Stack & Future Roadmap</h2>
+                <p class="mb-4 leading-relaxed">
+                  We’ve leveraged modern front-end tools to keep the app fast and modular:
+                </p>
+                <ul class="list-disc pl-5 space-y-2 text-slate-300">
+                  <li>📦 Tailwind CSS for utility-first styling</li>
+                  <li>🎨 p5.js for generative backgrounds</li>
+                  <li>🚀 Anime.js for UI animations</li>
+                  <li>🔊 Web Audio API & Lucide for audio controls and icons</li>
+                  <li>📈 Chart.js for financial projections</li>
+                  <li>🔎 Tippy.js for contextual definitions & tips</li>
+                </ul>
+                <p class="mt-4 leading-relaxed">
+                  <strong>Coming soon:</strong> a 3D Three.js visualizer (beautiful rotating spheres), user accounts & saved presets, currency converters, and premium insights dashboards.
+                </p>
+              </section>
 
-  <!-- Footer -->
-  <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-sm text-slate-500">
-    <div class="container mx-auto px-6">
-      <p>&copy; <span id="currentYearFooter"></span> Synth. All Rights Reserved.</p>
-    </div>
-  </footer>
+              <section>
+                <h2 class="text-2xl font-semibold text-white mb-4">Built & Maintained In Nova Scotia</h2>
+                <p class="leading-relaxed">
+                  Designed and coded in Halifax, Canada, with ❤️ for anyone who wants to blend music, art, and personal finance under one roof.
+                </p>
+              </section>
+
+              <!-- New Section for Sister Site -->
+              <section>
+                <h2 class="text-2xl font-semibold text-white mb-4">Check Out Our Sister Project: AuraSync X</h2>
+                <p class="mb-4 leading-relaxed">
+                    From the same developer, <a href="https://stephenalf21.github.io/AuraSync-X/index.html" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:underline font-semibold">AuraSync X</a> is a personal media hub for immersive music and video experiences. It features a stunning, GPU-accelerated 3D music visualizer and a sleek MP4 video player, all built with the same focus on privacy and local processing.
+                </p>
+              </section>
+            </div>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="bg-slate-900/80 border-t border-slate-800 py-6 text-center text-sm text-slate-500 mt-auto">
+        <div class="container mx-auto px-6">
+          <p>&copy; <span id="currentYearFooter"></span> Synth. All Rights Reserved.</p>
+        </div>
+      </footer>
+  </div>
 
   <!-- Shared Scripts -->
   <script>
-    // Lucide icon replacement
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       // Mobile menu toggle
@@ -126,7 +206,7 @@
       document.getElementById('currentYearFooter').textContent = new Date().getFullYear();
     });
 
-    // p5.js generative background (same as index.html)
+    // p5.js generative background (same as other pages)
     let particles = [];
     const sketch = (p) => {
       p.setup = () => {
@@ -173,3 +253,4 @@
 
 </body>
 </html>
+
