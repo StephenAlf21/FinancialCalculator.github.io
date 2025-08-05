@@ -14,9 +14,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <!-- Lucide icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   
   <style>
-    /* Using the same shared styles from the landing page for consistency */
+    /* Shared styles for consistency */
     html {
         scroll-behavior: smooth;
     }
@@ -25,6 +29,7 @@
         background-color: #0f172a; /* slate-900 */
         color: #e2e8f0; /* slate-200 */
         overflow-x: hidden;
+        overflow-y: auto; /* Ensure vertical scrolling */
     }
     #p5-canvas-container {
         position: fixed;
@@ -45,6 +50,7 @@
         -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(51, 65, 85, 0.5);
     }
+    /* Custom Scrollbar */
     ::-webkit-scrollbar {
         width: 8px;
     }
@@ -91,6 +97,9 @@
         <a href="about.html" class="text-slate-300 hover:text-indigo-400 transition-colors">About</a>
         <a href="contact.html" class="text-indigo-400 font-semibold">Contact</a>
       </div>
+      <a href="getstarted.html" class="hidden md:block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+        Get Started
+      </a>
       <button id="mobile-menu-btn" class="md:hidden text-slate-300">
         <i data-lucide="menu" class="w-6 h-6"></i>
       </button>
@@ -100,82 +109,93 @@
       <a href="features.html" class="block py-2 hover:text-indigo-400">Features</a>
       <a href="about.html" class="block py-2 hover:text-indigo-400">About</a>
       <a href="contact.html" class="block py-2 text-indigo-400">Contact</a>
+      <a href="getstarted.html" class="block mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-center">Get Started</a>
     </div>
   </header>
 
   <!-- Generative Background Canvas -->
-  <div id="p5-canvas-container" class="fixed inset-0 z-0 opacity-50"></div>
+  <div id="p5-canvas-container"></div>
 
   <!-- Main Content -->
   <main class="flex-grow container mx-auto px-6 py-16 lg:py-24 relative z-10">
-    <div class="max-w-5xl mx-auto glass-effect p-8 md:p-12 rounded-2xl shadow-lg">
-        <div class="grid md:grid-cols-2 gap-12">
-            <!-- Left Column: Contact Form -->
-            <div class="contact-form-container">
-                <h1 class="text-3xl lg:text-4xl font-extrabold text-indigo-300 mb-4">Send a Message</h1>
-                <p class="text-slate-400 mb-8">Have a question or proposal? Fill out the form below.</p>
-                <form action="#" method="POST" class="space-y-6">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
-                        <input type="text" id="name" name="name" class="form-input" placeholder="Stephen Alfred">
-                    </div>
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
-                        <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com">
-                    </div>
-                    <div>
-                        <label for="message" class="block text-sm font-medium text-slate-300 mb-2">Message</label>
-                        <textarea id="message" name="message" rows="5" class="form-input" placeholder="Your message..."></textarea>
-                    </div>
-                    <div>
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">
-                            Submit
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Right Column: Contact Info & About Snippet -->
-            <div class="contact-info-container">
-                <h2 class="text-3xl lg:text-4xl font-extrabold text-indigo-300 mb-4">Contact Info</h2>
-                <p class="text-slate-400 mb-8">You can also reach out directly through email or social media.</p>
-                
-                <div class="space-y-6">
-                    <div class="flex items-start gap-4">
-                        <i data-lucide="mail" class="w-6 h-6 text-indigo-400 mt-1"></i>
+    <div class="max-w-5xl mx-auto">
+        <!-- Back Button -->
+        <div class="mb-8">
+            <a href="index.html" class="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors font-semibold">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                <span>Back to Home</span>
+            </a>
+        </div>
+        <!-- Content Card -->
+        <div class="glass-effect p-8 md:p-12 rounded-2xl shadow-lg">
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- Left Column: Contact Form -->
+                <div class="contact-form-container">
+                    <h1 class="text-3xl lg:text-4xl font-extrabold text-indigo-300 mb-4">Send a Message</h1>
+                    <p class="text-slate-400 mb-8">Have a question or proposal? Fill out the form below.</p>
+                    <form action="#" method="POST" class="space-y-6">
                         <div>
-                            <h3 class="font-semibold text-white">Email</h3>
-                            <a href="mailto:stephenalfred31@gmail.com" class="text-slate-300 hover:text-indigo-300 transition-colors">stephenalfred31@gmail.com</a>
+                            <label for="name" class="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
+                            <input type="text" id="name" name="name" class="form-input" placeholder="Stephen Alfred">
                         </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                        <i data-lucide="twitter" class="w-6 h-6 text-indigo-400 mt-1"></i>
                         <div>
-                            <h3 class="font-semibold text-white">X (Twitter)</h3>
-                            <a href="https://x.com/Zombes18" target="_blank" class="text-slate-300 hover:text-indigo-300 transition-colors">@Zombes18</a>
+                            <label for="email" class="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
+                            <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com">
                         </div>
-                    </div>
-                     <div class="flex items-start gap-4">
-                        <i data-lucide="facebook" class="w-6 h-6 text-indigo-400 mt-1"></i>
                         <div>
-                            <h3 class="font-semibold text-white">Facebook</h3>
-                            <a href="https://www.facebook.com/gaming/PaddleBall3D" target="_blank" class="text-slate-300 hover:text-indigo-300 transition-colors">PaddleBall3D</a>
+                            <label for="message" class="block text-sm font-medium text-slate-300 mb-2">Message</label>
+                            <textarea id="message" name="message" rows="5" class="form-input" placeholder="Your message..."></textarea>
                         </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                        <i data-lucide="camera" class="w-6 h-6 text-indigo-400 mt-1"></i>
                         <div>
-                            <h3 class="font-semibold text-white">Bluesky</h3>
-                            <a href="https://bsky.app/profile/zombes18.bsky.social" target="_blank" class="text-slate-300 hover:text-indigo-300 transition-colors">@zombes18.bsky.social</a>
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">
+                                Submit
+                            </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
 
-                <div class="mt-12 pt-8 border-t border-slate-700">
-                    <h3 class="text-xl font-bold text-white mb-3">About Synth</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        Designed and coded in Halifax, Nova Scotia, Synth revolutionizes the way you experience sound and visuals. We blend music, generative art, and financial tools into a single, immersive platform.
-                    </p>
+                <!-- Right Column: Contact Info & About Snippet -->
+                <div class="contact-info-container">
+                    <h2 class="text-3xl lg:text-4xl font-extrabold text-indigo-300 mb-4">Contact Info</h2>
+                    <p class="text-slate-400 mb-8">You can also reach out directly through email or social media.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-4">
+                            <i data-lucide="mail" class="w-6 h-6 text-indigo-400 mt-1"></i>
+                            <div>
+                                <h3 class="font-semibold text-white">Email</h3>
+                                <a href="mailto:stephenalfred31@gmail.com" class="text-slate-300 hover:text-indigo-300 transition-colors">stephenalfred31@gmail.com</a>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <i data-lucide="twitter" class="w-6 h-6 text-indigo-400 mt-1"></i>
+                            <div>
+                                <h3 class="font-semibold text-white">X (Twitter)</h3>
+                                <a href="https://x.com/Zombes18" target="_blank" class="text-slate-300 hover:text-indigo-300 transition-colors">@Zombes18</a>
+                            </div>
+                        </div>
+                         <div class="flex items-start gap-4">
+                            <i data-lucide="facebook" class="w-6 h-6 text-indigo-400 mt-1"></i>
+                            <div>
+                                <h3 class="font-semibold text-white">Facebook</h3>
+                                <a href="https://www.facebook.com/gaming/PaddleBall3D" target="_blank" class="text-slate-300 hover:text-indigo-300 transition-colors">PaddleBall3D</a>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <i data-lucide="camera" class="w-6 h-6 text-indigo-400 mt-1"></i>
+                            <div>
+                                <h3 class="font-semibold text-white">Bluesky</h3>
+                                <a href="https://bsky.app/profile/zombes18.bsky.social" target="_blank" class="text-slate-300 hover:text-indigo-300 transition-colors">@zombes18.bsky.social</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 pt-8 border-t border-slate-700">
+                        <h3 class="text-xl font-bold text-white mb-3">About Synth</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Designed and coded in Halifax, Nova Scotia, Synth revolutionizes the way you experience sound and visuals. We blend music, generative art, and financial tools into a single, immersive platform.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -183,7 +203,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="bg-slate-900/80 border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+  <footer class="bg-slate-900/80 border-t border-slate-800 py-6 text-center text-sm text-slate-500 mt-auto">
     <div class="container mx-auto px-6">
       <p>&copy; <span id="currentYearFooter"></span> Synth. All Rights Reserved.</p>
     </div>
@@ -257,3 +277,4 @@
   </script>
 </body>
 </html>
+
