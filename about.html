@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About • Synth & Financial Tools</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="https://placehold.co/32x32/7C3AED/FFFFFF?text=S">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Anime.js for UI animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <!-- p5.js for generative background -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Shared stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="antialiased bg-slate-900 text-slate-200 flex flex-col min-h-screen">
+
+  <!-- Header & Navigation -->
+  <header class="sticky top-0 bg-slate-800/60 backdrop-blur-md z-50">
+    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-2 text-white text-2xl font-bold">
+        <i data-lucide="music-4" class="text-indigo-400"></i>
+        <span>Synth</span>
+      </div>
+      <div class="hidden md:flex space-x-8">
+        <a href="index.html" class="hover:text-indigo-400 transition-colors">Home</a>
+        <a href="features.html" class="hover:text-indigo-400 transition-colors">Features</a>
+        <a href="about.html" class="text-indigo-400 font-semibold">About</a>
+        <a href="contact.html" class="hover:text-indigo-400 transition-colors">Contact</a>
+      </div>
+      <button id="mobile-menu-btn" class="md:hidden text-slate-300">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="hidden bg-slate-800 px-6 pb-4 md:hidden">
+      <a href="index.html" class="block py-2 hover:text-indigo-400">Home</a>
+      <a href="features.html" class="block py-2 hover:text-indigo-400">Features</a>
+      <a href="about.html" class="block py-2 text-indigo-400">About</a>
+      <a href="contact.html" class="block py-2 hover:text-indigo-400">Contact</a>
+    </div>
+  </header>
+
+  <!-- Generative Background Canvas -->
+  <div id="p5-canvas-container" class="fixed inset-0 z-0 opacity-50"></div>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-6 py-16 relative z-10">
+    <div class="max-w-3xl mx-auto glass-effect p-8 rounded-2xl shadow-lg">
+      <h1 class="text-4xl font-extrabold text-indigo-300 mb-6">About Synth & Financial Tools</h1>
+
+      <section class="mb-8">
+        <h2 class="text-2xl font-semibold text-white mb-4">Immersive Audio-Visual Experience</h2>
+        <p class="mb-4 leading-relaxed">
+          Synth is your portal to an immersive, synthwave-inspired journey. Powered by generative p5.js art and curated ambient tracks, the player renders dynamic particles and lines that respond
+          in real time while you listen. Whether you’re chilling or working, just hit “Launch Player” and let the visuals flow.
+        </p>
+        <ul class="list-disc pl-5 space-y-2 text-slate-300">
+          <li>Playlist of 10 hand-picked tracks (classic anthems, remixes, and originals).</li>
+          <li>Play/Pause, Volume control, and seamless looping.</li>
+          <li>Responsive design—works on desktop, tablet, and mobile.</li>
+          <li>Animated UI powered by Anime.js for smooth transitions.</li>
+        </ul>
+      </section>
+
+      <section class="mb-8">
+        <h2 class="text-2xl font-semibold text-white mb-4">Advanced Financial Calculator</h2>
+        <p class="mb-4 leading-relaxed">
+          Built specifically for Nova Scotians (but adaptable everywhere), our financial suite helps you plan your future:
+        </p>
+        <ul class="list-disc pl-5 space-y-2 text-slate-300">
+          <li>Project your savings and chequing balance over 1–10 years with Chart.js line charts.</li>
+          <li>Calculate maximum monthly discretionary spending to hit a $30 000 savings goal in 2 years.</li>
+          <li>Dynamic tips sidebar (Tippy.js tooltips) offers budgeting advice on the fly.</li>
+          <li>Load sample profiles (Student, Job Seeker) with one click.</li>
+        </ul>
+      </section>
+
+      <section class="mb-8">
+        <h2 class="text-2xl font-semibold text-white mb-4">Tech Stack & Future Roadmap</h2>
+        <p class="mb-4 leading-relaxed">
+          We’ve leveraged modern front-end tools to keep the app fast and modular:
+        </p>
+        <ul class="list-disc pl-5 space-y-2 text-slate-300">
+          <li>📦 Tailwind CSS for utility-first styling</li>
+          <li>🎨 p5.js for generative backgrounds</li>
+          <li>🚀 Anime.js for UI animations</li>
+          <li>🔊 Web Audio API & Lucide for audio controls and icons</li>
+          <li>📈 Chart.js for financial projections</li>
+          <li>🔎 Tippy.js for contextual definitions & tips</li>
+        </ul>
+        <p class="mt-4 leading-relaxed">
+          <strong>Coming soon:</strong> a 3D Three.js visualizer (beautiful rotating spheres), user accounts & saved presets, currency converters, and premium insights dashboards.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold text-white mb-4">Built & Maintained In Nova Scotia</h2>
+        <p class="leading-relaxed">
+          Designed and coded in Halifax, Canada, with ❤️ for anyone who wants to blend music, art, and personal finance under one roof.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+    <div class="container mx-auto px-6">
+      <p>&copy; <span id="currentYearFooter"></span> Synth. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Shared Scripts -->
+  <script>
+    // Lucide icon replacement
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      // Mobile menu toggle
+      const menuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+      // Footer year
+      document.getElementById('currentYearFooter').textContent = new Date().getFullYear();
+    });
+
+    // p5.js generative background (same as index.html)
+    let particles = [];
+    const sketch = (p) => {
+      p.setup = () => {
+        const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+        canvas.parent('p5-canvas-container');
+        for (let i = 0; i < 80; i++) particles.push(new Particle(p));
+      };
+      p.draw = () => {
+        p.clear();
+        particles.forEach(pt => { pt.update(); pt.draw(); pt.connect(particles); });
+      };
+      p.windowResized = () => p.resizeCanvas(p.windowWidth, p.windowHeight);
+    };
+    class Particle {
+      constructor(p) {
+        this.p = p;
+        this.pos = p.createVector(p.random(p.width), p.random(p.height));
+        this.vel = p5.Vector.random2D().mult(p.random(0.5, 1.5));
+        this.size = p.random(2, 4);
+        this.color = p.color(129, 140, 248, p.random(40, 120));
+      }
+      update() {
+        this.pos.add(this.vel);
+        if (this.pos.x < 0 || this.pos.x > this.p.width) this.vel.x *= -1;
+        if (this.pos.y < 0 || this.pos.y > this.p.height) this.vel.y *= -1;
+      }
+      draw() {
+        this.p.noStroke();
+        this.p.fill(this.color);
+        this.p.ellipse(this.pos.x, this.pos.y, this.size);
+      }
+      connect(others) {
+        others.forEach(o => {
+          const d = this.p.dist(this.pos.x, this.pos.y, o.pos.x, o.pos.y);
+          if (d < 100) {
+            this.p.stroke(129, 140, 248, 30);
+            this.p.line(this.pos.x, this.pos.y, o.pos.x, o.pos.y);
+          }
+        });
+      }
+    }
+    new p5(sketch);
+  </script>
+
+</body>
+</html>
