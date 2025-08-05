@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started • Financial Planning</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="https://placehold.co/32x32/7C3AED/FFFFFF?text=S">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Anime.js for UI animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <!-- p5.js for generative background -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <!-- Lucide icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* Shared Styles for Uniformity */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* slate-900 */
+            color: #e2e8f0; /* slate-200 */
+            overflow-x: hidden;
+        }
+
+        #p5-canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        .glass-effect {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="p5-canvas-container"></div>
+
+    <div class="relative z-10 flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="sticky top-0 z-50 glass-effect">
+            <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+                <div class="text-2xl font-bold text-white flex items-center gap-2">
+                    <a href="index.html" class="flex items-center gap-2">
+                        <i data-lucide="music-4" class="text-indigo-400"></i>
+                        <span>Synth</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-slate-300 hover:text-indigo-400 transition-colors">Home</a>
+                    <a href="features.html" class="text-slate-300 hover:text-indigo-400 transition-colors">Features</a>
+                    <a href="about.html" class="text-slate-300 hover:text-indigo-400 transition-colors">About</a>
+                    <a href="contact.html" class="text-slate-300 hover:text-indigo-400 transition-colors">Contact</a>
+                </div>
+                <a href="calculator.html" class="hidden md:block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                    Financial Tools
+                </a>
+                <button id="mobile-menu-btn" class="md:hidden">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </nav>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+                 <a href="index.html" class="block py-2 text-slate-300 hover:text-indigo-400">Home</a>
+                 <a href="features.html" class="block py-2 text-slate-300 hover:text-indigo-400">Features</a>
+                 <a href="about.html" class="block py-2 text-slate-300 hover:text-indigo-400">About</a>
+                 <a href="contact.html" class="block py-2 text-slate-300 hover:text-indigo-400">Contact</a>
+                 <a href="calculator.html" class="block mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-center">Financial Tools</a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-6 py-16 lg:py-24 relative z-10">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl md:text-5xl font-black text-white leading-tight">Your Journey to Financial Freedom</h1>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-400">
+                        Mastering your finances is a critical step towards achieving your goals. This guide provides the foundational knowledge to get you started.
+                    </p>
+                </div>
+
+                <!-- Budgeting Section -->
+                <section class="content-card">
+                    <h2>1. The Power of Budgeting</h2>
+                    <p>A budget is not about restricting yourself—it's about empowering yourself. It's a plan for your money that ensures you can cover your needs and wants, while also working towards your long-term goals.</p>
+                    
+                    <h3>Why Budget?</h3>
+                    <ul>
+                        <li><strong>Gain Control:</strong> Know exactly where your money is going instead of wondering where it went.</li>
+                        <li><strong>Achieve Goals:</strong> A budget is the roadmap to saving for big life events like buying a house or securing a stable future.</li>
+                        <li><strong>Reduce Stress:</strong> Financial uncertainty is a major source of stress. A clear plan brings peace of mind.</li>
+                    </ul>
+
+                    <h3>How to Create a Simple Budget:</h3>
+                    <ol class="list-decimal list-inside space-y-3 mt-4 text-slate-300">
+                        <li><strong>Calculate Your Net Income:</strong> This is your take-home pay after taxes and deductions. Include all sources, like your retail job and any government benefits.</li>
+                        <li><strong>Track Your Expenses:</strong> For one month, write down every single thing you spend money on. Categorize expenses into "Fixed" (rent, bills) and "Variable" (groceries, entertainment).</li>
+                        <li><strong>Analyze and Adjust:</strong> Compare your income to your expenses. Are you spending more than you earn? Identify areas where you can cut back on variable spending to free up cash for savings.</li>
+                        <li><strong>Use Our Calculator:</strong> The <a href="calculator.html" class="text-indigo-400 hover:underline">Financial Calculator</a> is designed to help you with this! Input your numbers to see your financial picture clearly.</li>
+                    </ol>
+                </section>
+
+                <!-- Saving Section -->
+                <section class="content-card">
+                    <h2>2. Building Your Savings</h2>
+                    <p>Saving money is the engine of wealth creation. Even small, consistent contributions can grow into a significant amount over time, thanks to the power of compound interest.</p>
+
+                    <h3>Key Saving Strategies:</h3>
+                    <ul>
+                        <li><strong>Pay Yourself First:</strong> Before you pay any bills or spend on anything else, set aside a portion of your income for savings. Automate this by setting up a recurring transfer to a separate savings account right after you get paid.</li>
+                        <li><strong>The 50/30/20 Rule:</strong> A popular guideline for budgeting:
+                            <ul class="list-disc list-inside ml-6 mt-2">
+                                <li><strong>50%</strong> of your net income on <strong>Needs</strong> (housing, utilities, transportation).</li>
+                                <li><strong>30%</strong> on <strong>Wants</strong> (hobbies like video games, dining out).</li>
+                                <li><strong>20%</strong> on <strong>Savings & Debt Repayment</strong>.</li>
+                            </ul>
+                        </li>
+                         <li><strong>Set Clear Goals:</strong> It's easier to save when you know what you're saving for. Whether it's an emergency fund (3-6 months of living expenses), a down payment on a house, or a new bike, having a target makes the process more tangible.</li>
+                    </ul>
+                </section>
+                
+                 <!-- Next Steps Section -->
+                <section class="text-center mt-12">
+                    <h2 class="text-3xl font-bold text-white">Ready to Take Control?</h2>
+                    <p class="mt-4 text-slate-400">You have the knowledge, now it's time for action.</p>
+                    <a href="calculator.html" class="mt-6 inline-block bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105">
+                        Open the Financial Calculator
+                    </a>
+                </section>
+
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-slate-900/80 border-t border-slate-800 py-6 text-center text-sm text-slate-500 mt-auto">
+            <div class="container mx-auto px-6">
+                <p>&copy; <span id="currentYearFooter"></span> Synth. All Rights Reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // --- p5.js Sketch for Background Animation ---
+        let particles = [];
+        const sketch = (p) => {
+            p.setup = () => {
+                const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+                canvas.parent('p5-canvas-container');
+                for (let i = 0; i < 100; i++) {
+                    particles.push(new Particle(p));
+                }
+            };
+
+            p.draw = () => {
+                p.clear();
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                    particle.connect(particles);
+                });
+            };
+
+            p.windowResized = () => {
+                p.resizeCanvas(p.windowWidth, p.windowHeight);
+            };
+        };
+
+        class Particle {
+            constructor(p) {
+                this.p = p;
+                this.pos = p.createVector(p.random(p.width), p.random(p.height));
+                this.vel = p5.Vector.random2D();
+                this.vel.mult(p.random(0.5, 2));
+                this.size = p.random(2, 4);
+                this.color = p.color(129, 140, 248, p.random(50, 150)); // indigo-400 with alpha
+            }
+
+            update() {
+                this.pos.add(this.vel);
+                if (this.pos.x < 0 || this.pos.x > this.p.width) this.vel.x *= -1;
+                if (this.pos.y < 0 || this.pos.y > this.p.height) this.vel.y *= -1;
+            }
+
+            draw() {
+                this.p.noStroke();
+                this.p.fill(this.color);
+                this.p.ellipse(this.pos.x, this.pos.y, this.size);
+            }
+
+            connect(otherParticles) {
+                otherParticles.forEach(other => {
+                    const d = this.p.dist(this.pos.x, this.pos.y, other.pos.x, other.pos.y);
+                    if (d < 100) {
+                        this.p.stroke(129, 140, 248, 50); // Faint indigo line
+                        this.p.line(this.pos.x, this.pos.y, other.pos.x, other.pos.y);
+                    }
+                });
+            }
+        }
+        new p5(sketch);
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            document.getElementById('currentYearFooter').textContent = new Date().getFullYear();
+
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // Animate content cards
+            anime({
+                targets: '.content-card, .text-center',
+                opacity: [0, 1],
+                translateY: [50, 0],
+                delay: anime.stagger(200),
+                easing: 'easeOutExpo',
+                duration: 1000
+            });
+        });
+    </script>
+</body>
+</html>
