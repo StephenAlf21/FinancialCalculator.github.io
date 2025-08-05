@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service • Synth</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="https://placehold.co/32x32/7C3AED/FFFFFF?text=S">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* Shared Styles for Uniformity */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* slate-900 */
+            color: #e2e8f0; /* slate-200 */
+            overflow-x: hidden;
+            overflow-y: auto; /* Ensure vertical scrolling */
+        }
+        #p5-canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+        }
+        .glass-effect {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4f46e5;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366f1;
+        }
+        /* Content specific styles */
+        .content-card section {
+            margin-top: 2rem;
+        }
+        .content-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #c4b5fd; /* violet-300 */
+            margin-bottom: 1rem;
+        }
+        .content-card p, .content-card ul {
+            line-height: 1.75;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="p5-canvas-container"></div>
+
+    <div class="relative z-10 flex flex-col min-h-screen">
+        <header class="sticky top-0 z-50 glass-effect">
+            <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+                <div class="text-2xl font-bold text-white flex items-center gap-2">
+                    <a href="index.html" class="flex items-center gap-2">
+                        <i data-lucide="music-4" class="text-indigo-400"></i>
+                        <span>Synth</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-slate-300 hover:text-indigo-400 transition-colors">Home</a>
+                    <a href="features.html" class="text-slate-300 hover:text-indigo-400 transition-colors">Features</a>
+                    <a href="about.html" class="text-slate-300 hover:text-indigo-400 transition-colors">About</a>
+                    <a href="contact.html" class="text-slate-300 hover:text-indigo-400 transition-colors">Contact</a>
+                </div>
+                <a href="getstarted.html" class="hidden md:block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                    Get Started
+                </a>
+                <button id="mobile-menu-btn" class="md:hidden">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </nav>
+            <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 glass-effect">
+                 <a href="index.html" class="block py-2 text-slate-300 hover:text-indigo-400">Home</a>
+                 <a href="features.html" class="block py-2 text-slate-300 hover:text-indigo-400">Features</a>
+                 <a href="about.html" class="block py-2 text-slate-300 hover:text-indigo-400">About</a>
+                 <a href="contact.html" class="block py-2 text-slate-300 hover:text-indigo-400">Contact</a>
+                 <a href="getstarted.html" class="block mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-center">Get Started</a>
+            </div>
+        </header>
+
+        <main class="flex-grow container mx-auto px-6 py-16 lg:py-24 relative z-10">
+            <div class="max-w-4xl mx-auto">
+                <!-- Back Button -->
+                <div class="mb-8">
+                    <a href="index.html" class="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors font-semibold">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        <span>Back to Home</span>
+                    </a>
+                </div>
+                <!-- Content Card -->
+                <div class="content-card glass-effect p-8 md:p-12 rounded-2xl">
+                    <h1 class="text-4xl font-extrabold text-indigo-300 mb-6">Terms of Service</h1>
+                    <p class="text-sm text-slate-500">Last Updated: August 5, 2025</p>
+
+                    <section>
+                        <h2>1. Acceptance of Terms</h2>
+                        <p>By accessing or using Synth & Financial Tools (“Service”), you agree to be bound by these Terms of Service (“Terms”). If you do not agree, you must not use the Service.</p>
+                    </section>
+
+                    <section>
+                        <h2>2. Changes to Terms</h2>
+                        <p>We may modify these Terms at any time. We will post updates with a “Last Updated” date. Continued use after changes constitutes acceptance.</p>
+                    </section>
+                    
+                    <section>
+                        <h2>3. User Conduct</h2>
+                         <ul class="list-disc pl-5 space-y-2">
+                            <li>You must comply with all applicable laws: PIPEDA (Canada), CCPA (California, USA), GDPR (EU), UK GDPR.</li>
+                            <li>You will not use the Service for illegal, infringing, or harmful purposes.</li>
+                            <li>You must not disrupt or attempt to gain unauthorized access to any portion of the Service.</li>
+                        </ul>
+                    </section>
+                    
+                    <section>
+                        <h2>4. Intellectual Property</h2>
+                        <p>All content, trademarks, logos, and software are the property of Synth & Financial Tools or its licensors. You may not reproduce or distribute any content without express permission.</p>
+                    </section>
+                    
+                    <section>
+                        <h2>5. Disclaimers & Limitation of Liability</h2>
+                        <p>The Service is provided “as is” without warranties of any kind. To the fullest extent permitted by law, we disclaim all warranties, and will not be liable for any indirect, incidental, or consequential damages.</p>
+                    </section>
+
+                    <section>
+                        <h2>6. Governing Law & Jurisdiction</h2>
+                        <p>These Terms are governed by the laws of:</p>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>Canada:</strong> Province of Nova Scotia (PIPEDA)</li>
+                            <li><strong>United States:</strong> California (CCPA) for California residents; other states’ laws as applicable.</li>
+                            <li><strong>European Union:</strong> GDPR and member-state data protection laws.</li>
+                            <li><strong>United Kingdom:</strong> UK GDPR and Data Protection Act 2018.</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>7. Termination</h2>
+                        <p>We may suspend or terminate your access for violation of these Terms or for any reason, without notice.</p>
+                    </section>
+                    
+                    <section>
+                        <h2>8. Contact Information</h2>
+                        <p>If you have questions about these Terms, please contact us at <a href="mailto:stephenalfred31@gmail.com" class="text-indigo-400 hover:underline">stephenalfred31@gmail.com</a>.</p>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-slate-900/80 border-t border-slate-800 py-6 text-center text-sm text-slate-500 mt-auto">
+            <div class="container mx-auto px-6">
+                <p>&copy; <span id="currentYearFooter"></span> Synth. All Rights Reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // --- p5.js Sketch for Background Animation ---
+        let particles = [];
+        const sketch = (p) => {
+            p.setup = () => {
+                const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+                canvas.parent('p5-canvas-container');
+                for (let i = 0; i < 100; i++) {
+                    particles.push(new Particle(p));
+                }
+            };
+            p.draw = () => {
+                p.clear();
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                    particle.connect(particles);
+                });
+            };
+            p.windowResized = () => {
+                p.resizeCanvas(p.windowWidth, p.windowHeight);
+            };
+        };
+        class Particle {
+            constructor(p) { this.p = p; this.pos = p.createVector(p.random(p.width), p.random(p.height)); this.vel = p5.Vector.random2D().mult(p.random(0.5, 2)); this.size = p.random(2, 4); this.color = p.color(129, 140, 248, p.random(50, 150)); }
+            update() { this.pos.add(this.vel); if (this.pos.x < 0 || this.pos.x > this.p.width) this.vel.x *= -1; if (this.pos.y < 0 || this.pos.y > this.p.height) this.vel.y *= -1; }
+            draw() { this.p.noStroke(); this.p.fill(this.color); this.p.ellipse(this.pos.x, this.pos.y, this.size); }
+            connect(others) { others.forEach(o => { const d = this.p.dist(this.pos.x, this.pos.y, o.pos.x, o.pos.y); if (d < 100) { this.p.stroke(129, 140, 248, 50); this.p.line(this.pos.x, this.pos.y, o.pos.x, o.pos.y); } }); }
+        }
+        new p5(sketch);
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            document.getElementById('currentYearFooter').textContent = new Date().getFullYear();
+
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+            
+            anime({ targets: '.content-card', opacity: [0, 1], translateY: [50, 0], duration: 1000, easing: 'easeOutExpo' });
+        });
+    </script>
+</body>
+</html>
