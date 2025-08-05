@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Financial Calculator</title>
+    <link type="image/png" sizes="16x16" rel="icon" href="./icons8-star-connect-color-16.png">
+    <link type="image/png" sizes="32x32" rel="icon" href="./icons8-star-connect-color-32.png">
+    <link type="image/png" sizes="96x96" rel="icon" href="./icons8-star-connect-color-96.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a202c; /* Tailwind gray-900 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568; /* Tailwind gray-600 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096; /* Tailwind gray-500 */
+        }
+        
+        /* Core Layout Structure */
+        html {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: #111827;
+        }
+        input:focus, select:focus, input[type="number"]:focus, button:focus, input[type="range"]:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: #63b3ed; /* blue-400 */
+            box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.5);
+        }
+
+        select#projectionTimelineSelect {
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            width: auto;
+        }
+         select#projectionTimelineSelect option {
+            background-color: #2d3748;
+            color: white;
+        }
+
+        /* Page wrapper for sidebar animation */
+        #page-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            min-height: 100vh;
+            /* transition removed to prevent conflict with anime.js */
+        }
+
+        /* App Layout: Main container holds the two sidebars */
+        .app-container {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .main-content-area { /* Center Calculator Inputs */
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background-color: #111827;
+        }
+        .right-sidebar {
+            background-color: #1f2937; /* gray-800 */
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-left: 1px solid #374151; /* gray-700 */
+            width: 520px; /* Increased width */
+            min-width: 500px; /* Increased min-width */
+        }
+        /* Projection Area within Right Sidebar */
+        .projection-display-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .chart-container {
+            flex-grow: 1;
+            position: relative;
+            background-color: #1f2937; /* gray-800 */
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            border: 1px solid #2d3748;
+            min-height: 300px; /* Ensures chart has space to render */
+        }
+
+        .profile-button {
+            background-color: #4a5568;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s;
+            border: none;
+            font-size: 0.875rem;
+        }
+        .profile-button:hover {
+            background-color: #6b7280;
+        }
+        
+        /* Tips Navbar Styles */
+        #tips-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 300px;
+            background-color: #1a202c; /* A bit darker than sidebars */
+            z-index: 1000;
+            transform: translateX(-100%);
+            padding: 1.5rem;
+            border-right: 1px solid #374151;
+            overflow-y: auto;
+        }
+        #tips-toggle-btn {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: rgba(45, 55, 72, 0.8);
+            backdrop-filter: blur(5px);
+            border: 1px solid #4a5568;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        #tips-toggle-btn:hover {
+            background-color: #4a5568;
+        }
+        #tips-navbar h3 {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            color: #90cdf4; /* blue-300 */
+            margin-bottom: 1rem;
+        }
+        #tips-navbar h4 {
+            font-size: 1rem; /* text-lg */
+            font-weight: 600;
+            color: #63b3ed; /* blue-400 */
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        #tips-navbar ul {
+            list-style-type: disc;
+            padding-left: 1.25rem;
+            color: #d1d5db;
+        }
+        #tips-navbar ul li {
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .definition-term {
+            cursor: help;
+            border-bottom: 1px dashed #63b3ed;
+        }
+
+        /* Footer Styles */
+        .app-footer {
+            flex-shrink: 0;
+            background-color: #111827;
+            border-top: 1px solid #374151;
+            padding: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="text-white font-sans antialiased">
+
+    <!-- Tips Navbar (Initially Hidden) -->
+    <aside id="tips-navbar">
+        <h3>Financial Tips & Definitions</h3>
+        
+        <h4>Dynamic Suggestions</h4>
+        <ul id="dynamicTipsList">
+            <li>Calculating suggestions...</li>
+        </ul>
+
+        <h4>Definitions</h4>
+        <ul>
+            <li><span class="definition-term" data-tippy-content="Total earnings before any deductions (taxes, CPP, EI).">Gross Monthly Income</span></li>
+            <li><span class="definition-term" data-tippy-content="Income after payroll deductions (take-home pay from employment).">Net Monthly Income</span></li>
+            <li><span class="definition-term" data-tippy-content="(Net Monthly Income + Monthly Benefits) - Fixed Monthly Expenses. This is the amount available for savings or discretionary spending each month.">Net Monthly Savings (NMS)</span></li>
+            <li><span class="definition-term" data-tippy-content="The sum of your Savings Balance and Chequing/Float amount.">Total Assets</span></li>
+        </ul>
+    </aside>
+
+    <!-- Toggle Button for Tips Navbar -->
+    <button id="tips-toggle-btn" aria-label="Toggle financial tips">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+    <div id="page-wrapper">
+        <div class="app-container">
+            <!-- Center Content: Financial Calculator -->
+            <main class="main-content-area">
+                <div class="container mx-auto max-w-4xl">
+                    <header id="page-header" class="mb-8 text-center pt-6">
+                        <div class="flex justify-start mb-4">
+                            <a href="./index.html" class="text-blue-400 hover:text-blue-300 transition-colors">
+                                &larr; Back to Music Player
+                            </a>
+                        </div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-blue-400">Advanced Financial Calculator</h1>
+                        <p class="text-gray-400 mt-2 text-sm sm:text-base">Plan your financial future with detailed projections for Nova Scotia.</p>
+                    </header>
+
+                    <section id="loadProfilesSection" class="mb-6 p-4 bg-gray-800 shadow-lg rounded-lg">
+                        <h3 class="text-lg font-semibold text-blue-300 mb-3">Load Sample Profile</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button id="loadStudentProfileBtn" class="profile-button text-xs">Student (Part-Time)</button>
+                            <button id="loadJobSeekerProfileBtn" class="profile-button text-xs">Job Seeker (Benefits)</button>
+                        </div>
+                    </section>
+
+                    <section id="assumptions" class="mb-8 p-6 bg-gray-800 shadow-2xl rounded-lg">
+                        <h2 class="text-xl sm:text-2xl font-semibold mb-6 text-blue-300 border-b border-gray-700 pb-3">Your Assumptions</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                            <div>
+                                <label for="startingWage" class="block mb-1 text-sm font-medium text-gray-300">Starting Hourly Wage ($)</label>
+                                <input type="number" id="startingWage" value="16.10" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                            </div>
+                            <div>
+                                <label for="hoursPerWeek" class="block mb-1 text-sm font-medium text-gray-300">Hours Worked Per Week</label>
+                                <input type="number" id="hoursPerWeek" value="15.0931677" step="0.0000001" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                            </div>
+                            <div>
+                                <label for="payrollDeductionRate" class="block mb-1 text-sm font-medium text-gray-300">Payroll Deduction Rate (%)</label>
+                                <input type="number" id="payrollDeductionRate" value="7.61" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                            </div>
+                            <div>
+                                <label for="monthlyExpenses" class="block mb-1 text-sm font-medium text-gray-300">Fixed Monthly Expenses ($)</label>
+                                <input type="number" id="monthlyExpenses" value="815.19" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                            </div>
+                            <div>
+                                <label for="monthlyBenefits" class="block mb-1 text-sm font-medium text-gray-300">Monthly Gov. Benefits ($)</label>
+                                <input type="number" id="monthlyBenefits" value="250.75" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                            </div>
+                            <div>
+                                <label for="annualInterestRate" class="block mb-1 text-sm font-medium text-gray-300">Annual Savings Interest Rate (%)</label>
+                                <input type="number" id="annualInterestRate" value="0.45" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                            </div>
+                            <div>
+                                <label for="initialSavings" class="block mb-1 text-sm font-medium text-gray-300">Starting Savings Balance ($)</label>
+                                <input type="number" id="initialSavings" value="11326.78" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                            </div>
+                            <div>
+                                <label for="initialFloat" class="block mb-1 text-sm font-medium text-gray-300">Starting Chequing/Float ($)</label>
+                                <input type="number" id="initialFloat" value="5818.76" step="0.01" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                            </div>
+                            <div>
+                                <label for="customSavingsGoalInput" class="block mb-1 text-sm font-medium text-gray-300">Custom Total Asset Goal ($)</label>
+                                <input type="number" id="customSavingsGoalInput" value="75000" step="1000" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                            </div>
+                            <div class="md:col-span-2 lg:col-span-3">
+                                <p class="text-xs sm:text-sm text-gray-400 mt-2 leading-relaxed">
+                                    <strong>Wage Increase Model:</strong>
+                                    <br>Your initial wage (until Oct 2025): <span id="currentWageDisplay" class="font-semibold text-blue-300">$16.10</span>.
+                                    <br>Oct 2025 Wage: Your initial wage + $0.80.
+                                    <br>Oct 2026+ Wage: Future NS minimum wage + a premium.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="results" class="mb-8">
+                        <div class="bg-gray-800 shadow-2xl rounded-lg p-6">
+                            <h2 class="text-xl sm:text-2xl font-semibold mb-4 text-blue-300">Max Monthly Discretionary Spending</h2>
+                            <p class="text-gray-300 text-sm mb-2">To save at least $30,000 in your savings account over the next 2 years:</p>
+                            <p id="maxSpendingResult" class="text-2xl sm:text-3xl font-bold text-green-400">$0.00</p>
+                            <p id="maxSpendingNote" class="text-xs text-gray-400 mt-1"></p>
+                        </div>
+                    </section>
+                </div>
+            </main>
+
+            <!-- Right Sidebar: Financial Projection -->
+            <aside class="right-sidebar">
+                <h2 class="text-2xl font-semibold text-blue-400 mb-4">Financial Projection</h2>
+                <div class="projection-display-wrapper">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-sm text-gray-400">Visual growth projection.</p>
+                        <div>
+                            <label for="projectionTimelineSelect" class="text-sm text-gray-300 mr-2">Projection for:</label>
+                            <select id="projectionTimelineSelect" class="text-sm">
+                                <option value="12">1 Year</option>
+                                <option value="24">2 Years</option>
+                                <option value="36">3 Years</option>
+                                <option value="72" selected>6 Years</option>
+                                <option value="120">10 Years</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 p-4 bg-gray-700 rounded-md shadow">
+                        <h3 class="text-lg font-semibold mb-3 text-blue-200">Financial Goals Timeline</h3>
+                        <div>
+                            <p class="text-gray-300 text-sm">Time to Reach Custom Goal (<span id="customGoalDisplayValue" class="font-semibold"></span>):</p>
+                            <p id="customGoalResult" class="text-md font-semibold text-yellow-400">Calculating...</p>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="projectionChart"></canvas>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Page Footer -->
+        <footer class="app-footer">
+            <p class="text-xs sm:text-sm text-gray-500">&copy; <span id="currentYearFooter"></span> Financial Calculator. All figures are estimates.</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- Debounce Helper ---
+        function debounce(fn, wait = 200) {
+            let t;
+            return (...args) => {
+                clearTimeout(t);
+                t = setTimeout(() => fn(...args), wait);
+            };
+        }
+
+        // --- Configuration & Constants (Calculator) ---
+        const SIMULATION_START_YEAR = 2025;
+        const SIMULATION_START_MONTH = 3; // April (0-indexed)
+        const MIN_WAGE_OCT_2025_NS = 16.50;
+        const MIN_WAGE_APR_2025_NS = 15.70;
+        const ANNUAL_MIN_WAGE_INCREASE = 0.65;
+        const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        // --- DOM Elements (Calculator) ---
+        const DOMElements = {
+            pageWrapper: document.getElementById('page-wrapper'),
+            pageHeader: document.getElementById('page-header'),
+            loadProfilesSection: document.getElementById('loadProfilesSection'),
+            assumptionsSection: document.getElementById('assumptions'),
+            resultsSection: document.getElementById('results'),
+            startingWage: document.getElementById('startingWage'),
+            hoursPerWeek: document.getElementById('hoursPerWeek'),
+            payrollDeductionRate: document.getElementById('payrollDeductionRate'),
+            monthlyExpenses: document.getElementById('monthlyExpenses'),
+            monthlyBenefits: document.getElementById('monthlyBenefits'),
+            annualInterestRate: document.getElementById('annualInterestRate'),
+            initialSavings: document.getElementById('initialSavings'),
+            initialFloat: document.getElementById('initialFloat'),
+            customSavingsGoalInput: document.getElementById('customSavingsGoalInput'),
+            currentWageDisplay: document.getElementById('currentWageDisplay'),
+            maxSpendingResult: document.getElementById('maxSpendingResult'),
+            maxSpendingNote: document.getElementById('maxSpendingNote'),
+            customGoalDisplayValue: document.getElementById('customGoalDisplayValue'),
+            customGoalResult: document.getElementById('customGoalResult'),
+            currentYearFooter: document.getElementById('currentYearFooter'),
+            projectionTimelineSelect: document.getElementById('projectionTimelineSelect'),
+            tipsNavbar: document.getElementById('tips-navbar'),
+            tipsToggleBtn: document.getElementById('tips-toggle-btn'),
+            dynamicTipsList: document.getElementById('dynamicTipsList'),
+            loadStudentProfileBtn: document.getElementById('loadStudentProfileBtn'),
+            loadJobSeekerProfileBtn: document.getElementById('loadJobSeekerProfileBtn'),
+        };
+
+        // --- Chart.js Instance ---
+        let projectionChart;
+        
+        // --- State ---
+        let isTipsNavbarOpen = false;
+
+        // --- Pre-defined Profiles ---
+        const userProfiles = {
+            student: {
+                startingWage: MIN_WAGE_APR_2025_NS,
+                hoursPerWeek: 15,
+                payrollDeductionRate: 7.61,
+                monthlyExpenses: 650,
+                monthlyBenefits: 100,
+                annualInterestRate: 0.45,
+                initialSavings: 500,
+                initialFloat: 200,
+                customSavingsGoalInput: 5000
+            },
+            jobSeeker: {
+                startingWage: 0,
+                hoursPerWeek: 0,
+                payrollDeductionRate: 0,
+                monthlyExpenses: 800,
+                monthlyBenefits: 1200,
+                annualInterestRate: 0.45,
+                initialSavings: 1000,
+                initialFloat: 300,
+                customSavingsGoalInput: 10000
+            }
+        };
+
+        // --- Helper Functions (Calculator) ---
+        const getNumericValue = (element) => parseFloat(element.value) || 0;
+        const formatCurrency = (amount) => {
+            if (typeof amount !== 'number' || isNaN(amount)) return '$--.--';
+            return amount.toLocaleString('en-CA', { style: 'currency', currency: 'CAD' });
+        };
+        
+        // --- Core Calculation Logic (Calculator) ---
+        function getHourlyWageForMonth(monthIndex, assumptions) {
+            const currentDate = new Date(SIMULATION_START_YEAR, SIMULATION_START_MONTH + monthIndex, 1);
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+            const wageJumpAmountOct2025 = MIN_WAGE_OCT_2025_NS - MIN_WAGE_APR_2025_NS;
+            const userWageInOct2025 = assumptions.startingWage + wageJumpAmountOct2025;
+            const dynamicPremiumOverMinWage = userWageInOct2025 - MIN_WAGE_OCT_2025_NS;
+            let wage;
+            if (currentYear < 2025 || (currentYear === 2025 && currentMonth < 9)) wage = assumptions.startingWage;
+            else if (currentYear === 2025 && currentMonth >= 9) wage = userWageInOct2025;
+            else {
+                let minWageReferenceYear = currentYear;
+                if (currentMonth < 9) minWageReferenceYear = currentYear - 1;
+                const yearsSinceOct2025MinWage = minWageReferenceYear - 2025;
+                const currentMinWage = MIN_WAGE_OCT_2025_NS + (yearsSinceOct2025MinWage * ANNUAL_MIN_WAGE_INCREASE);
+                wage = currentMinWage + dynamicPremiumOverMinWage;
+            }
+            return Math.max(0, wage);
+        }
+
+        function calculateMaxMonthlySpending(assumptions) {
+            const N_MONTHS = 24;
+            const targetSavingsIncrease = 30000;
+            const monthlyInterestRate = assumptions.annualInterestRate / 100 / 12;
+            const initialSavings = assumptions.initialSavings;
+            let sumNMSPotentialCompounded = 0;
+            let sumInterestFactors = 0;
+            let firstMonthNMS = 0;
+
+            for (let i = 0; i < N_MONTHS; i++) {
+                const hourlyWage = getHourlyWageForMonth(i, assumptions);
+                const grossMonthlyIncome = hourlyWage * assumptions.hoursPerWeek * 52 / 12;
+                const netMonthlyIncome = grossMonthlyIncome * (1 - assumptions.payrollDeductionRate / 100);
+                const nmsPotential = netMonthlyIncome + assumptions.monthlyBenefits - assumptions.monthlyExpenses;
+                if (i === 0) firstMonthNMS = nmsPotential;
+                sumNMSPotentialCompounded += nmsPotential * Math.pow(1 + monthlyInterestRate, N_MONTHS - 1 - i);
+                sumInterestFactors += Math.pow(1 + monthlyInterestRate, N_MONTHS - 1 - i);
+            }
+            let maxSpending;
+            if (sumInterestFactors === 0) {
+                maxSpending = (monthlyInterestRate === 0) ? (initialSavings * 0 - targetSavingsIncrease + sumNMSPotentialCompounded) / N_MONTHS : -Infinity;
+            } else {
+                 maxSpending = (initialSavings * (Math.pow(1 + monthlyInterestRate, N_MONTHS) - 1) - targetSavingsIncrease + sumNMSPotentialCompounded) / sumInterestFactors;
+            }
+            DOMElements.maxSpendingResult.textContent = formatCurrency(maxSpending);
+            DOMElements.maxSpendingResult.classList.toggle('text-red-400', maxSpending < 0);
+            DOMElements.maxSpendingResult.classList.toggle('text-green-400', maxSpending >= 0);
+            DOMElements.maxSpendingNote.textContent = maxSpending < 0 ? `Reduce costs or increase income by ${formatCurrency(Math.abs(maxSpending))}/month to meet goal.` : `Estimated max discretionary spending per month.`;
+
+            updateDynamicTips(firstMonthNMS, assumptions);
+        }
+
+        function runProjections(assumptions) {
+            const selectedTimelineMonths = parseInt(DOMElements.projectionTimelineSelect.value);
+            const selectedTimelineYears = selectedTimelineMonths / 12;
+            
+            const customGoalAmount = getNumericValue(DOMElements.customSavingsGoalInput);
+            DOMElements.customGoalDisplayValue.textContent = formatCurrency(customGoalAmount);
+            
+            if (customGoalAmount <= 0) {
+                DOMElements.customGoalResult.textContent = "Please enter a positive goal amount.";
+                DOMElements.customGoalResult.className = 'text-md font-semibold text-red-400';
+                return; // Stop here if goal is invalid
+            } else {
+                DOMElements.customGoalResult.textContent = `Not reached within ${selectedTimelineYears} year(s)`;
+                DOMElements.customGoalResult.className = 'text-md font-semibold text-yellow-400';
+            }
+
+            const labels = [];
+            const totalAssetsData = [];
+            const savingsBalanceData = [];
+
+            let currentSavings = assumptions.initialSavings;
+            const floatAmount = assumptions.initialFloat;
+            let totalAssets = currentSavings + floatAmount;
+            let customGoalReached = false;
+
+            for (let i = 0; i < selectedTimelineMonths; i++) {
+                const currentDate = new Date(SIMULATION_START_YEAR, SIMULATION_START_MONTH + i, 1);
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                const hourlyWage = getHourlyWageForMonth(i, assumptions);
+                const grossMonthlyIncome = hourlyWage * assumptions.hoursPerWeek * 52 / 12;
+                const netMonthlyIncome = grossMonthlyIncome * (1 - assumptions.payrollDeductionRate / 100);
+                const nmsContribution = netMonthlyIncome + assumptions.monthlyBenefits - assumptions.monthlyExpenses;
+                currentSavings = currentSavings * (1 + assumptions.annualInterestRate / 100 / 12) + nmsContribution;
+                totalAssets = currentSavings + floatAmount;
+                
+                labels.push(`${MONTH_NAMES[month]} ${year}`);
+                totalAssetsData.push(totalAssets);
+                savingsBalanceData.push(currentSavings);
+
+                if (!customGoalReached && totalAssets >= customGoalAmount) {
+                    DOMElements.customGoalResult.textContent = `${MONTH_NAMES[month]} ${year}`;
+                    DOMElements.customGoalResult.className = 'text-md font-semibold text-green-400';
+                    customGoalReached = true;
+                }
+            }
+
+            if (projectionChart) {
+                projectionChart.data.labels = labels;
+                projectionChart.data.datasets[0].data = totalAssetsData;
+                projectionChart.data.datasets[1].data = savingsBalanceData;
+                projectionChart.update();
+            }
+        }
+
+        function updateAllCalculations() {
+            const assumptions = {
+                startingWage: getNumericValue(DOMElements.startingWage),
+                hoursPerWeek: getNumericValue(DOMElements.hoursPerWeek),
+                payrollDeductionRate: getNumericValue(DOMElements.payrollDeductionRate),
+                monthlyExpenses: getNumericValue(DOMElements.monthlyExpenses),
+                monthlyBenefits: getNumericValue(DOMElements.monthlyBenefits),
+                annualInterestRate: getNumericValue(DOMElements.annualInterestRate),
+                initialSavings: getNumericValue(DOMElements.initialSavings),
+                initialFloat: getNumericValue(DOMElements.initialFloat),
+            };
+            DOMElements.currentWageDisplay.textContent = formatCurrency(assumptions.startingWage);
+            calculateMaxMonthlySpending(assumptions);
+            runProjections(assumptions);
+        }
+
+        // --- Tips Navbar Logic ---
+        function toggleTipsNavbar() {
+            isTipsNavbarOpen = !isTipsNavbarOpen;
+            const navBarWidth = DOMElements.tipsNavbar.offsetWidth;
+            
+            anime({
+                targets: '#tips-navbar',
+                translateX: isTipsNavbarOpen ? '0%' : '-100%',
+                easing: 'easeOutExpo',
+                duration: 500
+            });
+
+            anime({
+                targets: '#page-wrapper, #tips-toggle-btn',
+                marginLeft: isTipsNavbarOpen ? `${navBarWidth}px` : '0px',
+                easing: 'easeOutExpo',
+                duration: 500
+            });
+        }
+
+        function updateDynamicTips(currentNMS, assumptions) {
+            const tipsList = DOMElements.dynamicTipsList;
+            tipsList.innerHTML = '';
+
+            if (currentNMS < 0) {
+                const tipItem = document.createElement('li');
+                tipItem.textContent = `Your current Net Monthly Savings (NMS) is ${formatCurrency(currentNMS)}. Consider reducing expenses by ${formatCurrency(Math.abs(currentNMS))} or increasing income to save more.`;
+                tipsList.appendChild(tipItem);
+            } else if (currentNMS < 100) {
+                 const tipItem = document.createElement('li');
+                tipItem.textContent = `Your NMS is ${formatCurrency(currentNMS)}. While positive, increasing this could help you reach goals faster. Explore options to boost income or trim non-essential spending.`;
+                tipsList.appendChild(tipItem);
+            } else {
+                const tipItem = document.createElement('li');
+                tipItem.textContent = `Your NMS of ${formatCurrency(currentNMS)} is a good start! Keep monitoring your budget.`;
+                tipsList.appendChild(tipItem);
+            }
+
+            if (assumptions.monthlyExpenses > ( (assumptions.startingWage * assumptions.hoursPerWeek * 52 / 12) * (1 - assumptions.payrollDeductionRate/100) * 0.6) && assumptions.hoursPerWeek > 0 ) {
+                const tipItem = document.createElement('li');
+                tipItem.textContent = `Your fixed monthly expenses seem relatively high compared to your employment income. Review your budget for potential savings.`;
+                tipsList.appendChild(tipItem);
+            }
+            if (tipsList.children.length === 0) {
+                 const tipItem = document.createElement('li');
+                tipItem.textContent = `Looking good! Continue to monitor your finances and adjust as needed.`;
+                tipsList.appendChild(tipItem);
+            }
+        }
+
+        // --- Profile Loading Logic ---
+        function loadProfile(profileName) {
+            const profileData = userProfiles[profileName];
+            if (!profileData) return;
+
+            DOMElements.startingWage.value = profileData.startingWage;
+            DOMElements.hoursPerWeek.value = profileData.hoursPerWeek;
+            DOMElements.payrollDeductionRate.value = profileData.payrollDeductionRate;
+            DOMElements.monthlyExpenses.value = profileData.monthlyExpenses;
+            DOMElements.monthlyBenefits.value = profileData.monthlyBenefits;
+            DOMElements.annualInterestRate.value = profileData.annualInterestRate;
+            DOMElements.initialSavings.value = profileData.initialSavings;
+            DOMElements.initialFloat.value = profileData.initialFloat;
+            DOMElements.customSavingsGoalInput.value = profileData.customSavingsGoalInput;
+
+            updateAllCalculations();
+        }
+
+        // --- Animation Logic ---
+        function playIntroAnimations() {
+            const tl = anime.timeline({
+                easing: 'easeOutExpo',
+            });
+
+            tl.add({
+                targets: '#page-header h1, #page-header p, #tips-toggle-btn',
+                translateY: [-30, 0],
+                opacity: [0, 1],
+                duration: 800,
+                delay: anime.stagger(100)
+            })
+            .add({
+                targets: '#loadProfilesSection, #assumptions, #results',
+                translateY: [50, 0],
+                opacity: [0, 1],
+                duration: 900,
+                delay: anime.stagger(100, {start: 300})
+            }, '-=500')
+             .add({
+                targets: '.right-sidebar',
+                translateX: ['100%', '0%'],
+                opacity: [0, 1],
+                duration: 1000,
+            }, '-=1200');
+        }
+
+        // --- Chart Initialization ---
+        function initializeChart() {
+            const ctx = document.getElementById('projectionChart').getContext('2d');
+            projectionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Total Assets',
+                        data: [],
+                        borderColor: '#63b3ed',
+                        backgroundColor: 'rgba(99, 179, 237, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Savings Balance',
+                        data: [],
+                        borderColor: '#48bb78',
+                        backgroundColor: 'rgba(72, 187, 120, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#d1d5db' } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        label += formatCurrency(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(75, 85, 99, 0.5)' }
+                        },
+                        y: {
+                            beginAtZero: true, // This ensures the Y-axis starts at 0
+                            ticks: {
+                                color: '#9ca3af',
+                                callback: function(value) { return formatCurrency(value); }
+                            },
+                            grid: { color: 'rgba(75, 85, 99, 0.5)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            DOMElements.currentYearFooter.textContent = new Date().getFullYear();
+            initializeChart();
+
+            // Initialize Tippy.js tooltips
+            tippy('[data-tippy-content]', {
+                animation: 'scale-subtle',
+                theme: 'translucent'
+            });
+
+            const debouncedUpdate = debounce(updateAllCalculations, 200);
+            const calculatorInputFields = [
+                DOMElements.startingWage, DOMElements.hoursPerWeek, DOMElements.payrollDeductionRate,
+                DOMElements.monthlyExpenses, DOMElements.monthlyBenefits, DOMElements.annualInterestRate,
+                DOMElements.initialSavings, DOMElements.initialFloat, DOMElements.customSavingsGoalInput,
+                DOMElements.projectionTimelineSelect
+            ];
+            calculatorInputFields.forEach(field => {
+                if (field) {
+                    const eventType = field.tagName === 'SELECT' ? 'change' : 'input';
+                    field.addEventListener(eventType, debouncedUpdate);
+                }
+            });
+
+            if (DOMElements.tipsToggleBtn) {
+                DOMElements.tipsToggleBtn.addEventListener('click', toggleTipsNavbar);
+            }
+            if (DOMElements.loadStudentProfileBtn) {
+                DOMElements.loadStudentProfileBtn.addEventListener('click', () => loadProfile('student'));
+            }
+            if (DOMElements.loadJobSeekerProfileBtn) {
+                DOMElements.loadJobSeekerProfileBtn.addEventListener('click', () => loadProfile('jobSeeker'));
+            }
+            
+            updateAllCalculations();
+            playIntroAnimations(); // Run animations on page load
+        });
+    </script>
+</body>
+</html>
