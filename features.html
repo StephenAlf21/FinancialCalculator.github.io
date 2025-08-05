@@ -16,109 +16,172 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Chart.js for graphs -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Shared stylesheet -->
-  <link rel="stylesheet" href="style.css">
-</head>
-<body class="antialiased bg-slate-900 text-slate-200 flex flex-col min-h-screen">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
-  <!-- Header & Navigation -->
-  <header class="sticky top-0 bg-slate-800/60 backdrop-blur-md z-50">
-    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-      <div class="flex items-center gap-2 text-white text-2xl font-bold">
-        <i data-lucide="music-4" class="text-indigo-400"></i>
-        <span>Synth</span>
-      </div>
-      <div class="hidden md:flex space-x-8">
-        <a href="index.html" class="hover:text-indigo-400 transition-colors">Home</a>
-        <a href="features.html" class="text-indigo-400 font-semibold">Features</a>
-        <a href="about.html" class="hover:text-indigo-400 transition-colors">About</a>
-        <a href="contact.html" class="hover:text-indigo-400 transition-colors">Contact</a>
-      </div>
-      <button id="mobile-menu-btn" class="md:hidden text-slate-300">
-        <i data-lucide="menu" class="w-6 h-6"></i>
-      </button>
-    </nav>
-    <div id="mobile-menu" class="hidden bg-slate-800 px-6 pb-4 md:hidden">
-      <a href="index.html" class="block py-2 hover:text-indigo-400">Home</a>
-      <a href="features.html" class="block py-2 text-indigo-400">Features</a>
-      <a href="about.html" class="block py-2 hover:text-indigo-400">About</a>
-      <a href="contact.html" class="block py-2 hover:text-indigo-400">Contact</a>
-    </div>
-  </header>
+  <style>
+    /* Shared Styles for Uniformity */
+    html {
+        scroll-behavior: smooth;
+    }
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #0f172a; /* slate-900 */
+        color: #e2e8f0; /* slate-200 */
+        overflow-x: hidden;
+        overflow-y: auto; /* Ensure vertical scrolling */
+    }
+    #p5-canvas-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0.5;
+    }
+    .glass-effect {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #4f46e5; /* indigo-600 */
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #6366f1; /* indigo-500 */
+    }
+  </style>
+</head>
+<body class="antialiased">
 
   <!-- Generative Background Canvas -->
-  <div id="p5-canvas-container" class="fixed inset-0 z-0 opacity-50"></div>
+  <div id="p5-canvas-container"></div>
 
-  <!-- Main Content -->
-  <main class="flex-grow container mx-auto px-6 py-16 relative z-10">
-    <div class="max-w-4xl mx-auto glass-effect p-8 rounded-2xl shadow-lg">
-      <h1 class="text-4xl font-extrabold text-indigo-300 mb-6">Features Overview</h1>
+  <div class="relative z-10 flex flex-col min-h-screen">
+      <!-- Header & Navigation -->
+      <header class="sticky top-0 z-50 glass-effect">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+          <div class="flex items-center gap-2 text-white text-2xl font-bold">
+            <a href="index.html" class="flex items-center gap-2">
+                <i data-lucide="music-4" class="text-indigo-400"></i>
+                <span>Synth</span>
+            </a>
+          </div>
+          <div class="hidden md:flex items-center space-x-8">
+            <a href="index.html" class="text-slate-300 hover:text-indigo-400 transition-colors">Home</a>
+            <a href="features.html" class="text-indigo-400 font-semibold">Features</a>
+            <a href="about.html" class="text-slate-300 hover:text-indigo-400 transition-colors">About</a>
+            <a href="contact.html" class="text-slate-300 hover:text-indigo-400 transition-colors">Contact</a>
+          </div>
+           <a href="getstarted.html" class="hidden md:block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                Get Started
+            </a>
+          <button id="mobile-menu-btn" class="md:hidden text-slate-300">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+        </nav>
+        <div id="mobile-menu" class="hidden bg-slate-800/90 px-6 pb-4 md:hidden">
+          <a href="index.html" class="block py-2 hover:text-indigo-400">Home</a>
+          <a href="features.html" class="block py-2 text-indigo-400">Features</a>
+          <a href="about.html" class="block py-2 hover:text-indigo-400">About</a>
+          <a href="contact.html" class="block py-2 hover:text-indigo-400">Contact</a>
+           <a href="getstarted.html" class="block mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-center">Get Started</a>
+        </div>
+      </header>
 
-      <!-- Audio Visualizer Section -->
-      <section class="mb-10">
-        <h2 class="text-2xl font-semibold text-white mb-4">● Interactive Audio Visualizer</h2>
-        <ul class="list-disc pl-5 space-y-2 text-slate-300">
-          <li><strong>Real-time Signal Response:</strong> Waveforms, particles, and lines move with the music’s frequency and amplitude.</li>
-          <li><strong>Theme Selection:</strong> Choose between neon, pastel, and dark modes for your visual flavor.</li>
-          <li><strong>Customization Panel:</strong> Adjust particle count, line thickness, and color palettes on the fly.</li>
-          <li><strong>Full-Screen Mode:</strong> Seamlessly expand to fill your display for immersive sessions.</li>
-        </ul>
-      </section>
+      <!-- Main Content -->
+      <main class="flex-grow container mx-auto px-6 py-16 relative z-10">
+        <div class="max-w-4xl mx-auto">
+            <!-- Back Button -->
+            <div class="mb-8">
+                <a href="index.html" class="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors font-semibold">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    <span>Back to Home</span>
+                </a>
+            </div>
+            <!-- Content Card -->
+            <div class="glass-effect p-8 md:p-12 rounded-2xl shadow-lg">
+                <h1 class="text-4xl font-extrabold text-indigo-300 mb-6">Features Overview</h1>
 
-      <!-- Financial Tools Section -->
-      <section class="mb-10">
-        <h2 class="text-2xl font-semibold text-white mb-4">● Financial Planning Suite</h2>
-        <ul class="list-disc pl-5 space-y-2 text-slate-300">
-          <li><strong>Savings Projection:</strong> Visualize your account growth over 1–10 year horizons with dynamic line charts.</li>
-          <li><strong>Budget Analyzer:</strong> Enter income and expenses to receive a monthly surplus/deficit breakdown.</li>
-          <li><strong>Goal Tracker:</strong> Set targets (e.g., $30 000 home down payment) and monitor your progress.</li>
-          <li><strong>Scenario Simulator:</strong> Test “what-if” scenarios by tweaking interest rates, contribution amounts, or timeframes.</li>
-        </ul>
-      </section>
+                <!-- Audio Visualizer Section -->
+                <section class="mb-10">
+                    <h2 class="text-2xl font-semibold text-white mb-4">● Interactive Audio Visualizer</h2>
+                    <ul class="list-disc pl-5 space-y-2 text-slate-300">
+                    <li><strong>Real-time Signal Response:</strong> Waveforms, particles, and lines move with the music’s frequency and amplitude.</li>
+                    <li><strong>Theme Selection:</strong> Choose between neon, pastel, and dark modes for your visual flavor.</li>
+                    <li><strong>Customization Panel:</strong> Adjust particle count, line thickness, and color palettes on the fly.</li>
+                    <li><strong>Full-Screen Mode:</strong> Seamlessly expand to fill your display for immersive sessions.</li>
+                    </ul>
+                </section>
 
-      <!-- Upcoming Three.js Section -->
-      <section class="mb-10">
-        <h2 class="text-2xl font-semibold text-white mb-4">● 3D Three.js Visualizer (Coming Soon)</h2>
-        <p class="mb-4 leading-relaxed text-slate-300">
-          Experience audio-reactive 3D geometries:
-        </p>
-        <ul class="list-disc pl-5 space-y-2 text-slate-300">
-          <li>Rotating spheres that pulse with bass drops.</li>
-          <li>Wireframe grids and shader effects synced to mid/high frequencies.</li>
-          <li>Camera transitions and orbit controls for interactive exploration.</li>
-        </ul>
-      </section>
+                <!-- Financial Tools Section -->
+                <section class="mb-10">
+                    <h2 class="text-2xl font-semibold text-white mb-4">● Financial Planning Suite</h2>
+                    <ul class="list-disc pl-5 space-y-2 text-slate-300">
+                    <li><strong>Savings Projection:</strong> Visualize your account growth over 1–10 year horizons with dynamic line charts.</li>
+                    <li><strong>Budget Analyzer:</strong> Enter income and expenses to receive a monthly surplus/deficit breakdown.</li>
+                    <li><strong>Goal Tracker:</strong> Set targets (e.g., $30 000 home down payment) and monitor your progress.</li>
+                    <li><strong>Scenario Simulator:</strong> Test “what-if” scenarios by tweaking interest rates, contribution amounts, or timeframes.</li>
+                    </ul>
+                </section>
 
-      <!-- Utility & Accessibility Section -->
-      <section class="mb-10">
-        <h2 class="text-2xl font-semibold text-white mb-4">● Utility & Accessibility</h2>
-        <ul class="list-disc pl-5 space-y-2 text-slate-300">
-          <li><strong>Keyboard Shortcuts:</strong> Spacebar to play/pause, ↑/↓ to adjust volume, F to toggle full-screen.</li>
-          <li><strong>Dark & Light Themes:</strong> Auto-switch based on system preferences or manual toggle.</li>
-          <li><strong>Screen Reader Support:</strong> ARIA labels on all controls and visual indicators.</li>
-          <li><strong>Responsive Layout:</strong> Mobile-friendly menus and swipe gestures for playlists.</li>
-        </ul>
-      </section>
+                <!-- Upcoming Three.js Section -->
+                <section class="mb-10">
+                    <h2 class="text-2xl font-semibold text-white mb-4">● 3D Three.js Visualizer (Coming Soon)</h2>
+                    <p class="mb-4 leading-relaxed text-slate-300">
+                    Experience audio-reactive 3D geometries:
+                    </p>
+                    <ul class="list-disc pl-5 space-y-2 text-slate-300">
+                    <li>Rotating spheres that pulse with bass drops.</li>
+                    <li>Wireframe grids and shader effects synced to mid/high frequencies.</li>
+                    <li>Camera transitions and orbit controls for interactive exploration.</li>
+                    </ul>
+                </section>
 
-      <!-- Integration & Export Section -->
-      <section>
-        <h2 class="text-2xl font-semibold text-white mb-4">● Integration & Export</h2>
-        <ul class="list-disc pl-5 space-y-2 text-slate-300">
-          <li><strong>Playlist Import:</strong> Upload your own .m3u or .json playlists.</li>
-          <li><strong>Snapshot Exports:</strong> Capture and download PNG snapshots of your visualizer frames.</li>
-          <li><strong>CSV Export:</strong> Export financial simulation data for offline analysis.</li>
-          <li><strong>API Access:</strong> Fetch raw data endpoints for custom front-ends or third-party apps.</li>
-        </ul>
-      </section>
-    </div>
-  </main>
+                <!-- Utility & Accessibility Section -->
+                <section class="mb-10">
+                    <h2 class="text-2xl font-semibold text-white mb-4">● Utility & Accessibility</h2>
+                    <ul class="list-disc pl-5 space-y-2 text-slate-300">
+                    <li><strong>Keyboard Shortcuts:</strong> Spacebar to play/pause, ↑/↓ to adjust volume, F to toggle full-screen.</li>
+                    <li><strong>Dark & Light Themes:</strong> Auto-switch based on system preferences or manual toggle.</li>
+                    <li><strong>Screen Reader Support:</strong> ARIA labels on all controls and visual indicators.</li>
+                    <li><strong>Responsive Layout:</strong> Mobile-friendly menus and swipe gestures for playlists.</li>
+                    </ul>
+                </section>
 
-  <!-- Footer -->
-  <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-sm text-slate-500">
-    <div class="container mx-auto px-6">
-      <p>&copy; <span id="currentYearFooter"></span> Synth. All Rights Reserved.</p>
-    </div>
-  </footer>
+                <!-- Integration & Export Section -->
+                <section>
+                    <h2 class="text-2xl font-semibold text-white mb-4">● Integration & Export</h2>
+                    <ul class="list-disc pl-5 space-y-2 text-slate-300">
+                    <li><strong>Playlist Import:</strong> Upload your own .m3u or .json playlists.</li>
+                    <li><strong>Snapshot Exports:</strong> Capture and download PNG snapshots of your visualizer frames.</li>
+                    <li><strong>CSV Export:</strong> Export financial simulation data for offline analysis.</li>
+                    <li><strong>API Access:</strong> Fetch raw data endpoints for custom front-ends or third-party apps.</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="bg-slate-900/80 border-t border-slate-800 py-6 text-center text-sm text-slate-500 mt-auto">
+        <div class="container mx-auto px-6">
+          <p>&copy; <span id="currentYearFooter"></span> Synth. All Rights Reserved.</p>
+        </div>
+      </footer>
+  </div>
 
   <!-- Shared Scripts -->
   <script>
@@ -178,3 +241,4 @@
   </script>
 </body>
 </html>
+
