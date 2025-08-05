@@ -5,16 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Synthwave Landing Page</title>
     
-    <!-- Favicon -->
     <link type="image/png" sizes="32x32" rel="icon" href="https://placehold.co/32x32/7C3AED/FFFFFF?text=S">
     
-    <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -96,7 +93,6 @@
 
     <div class="relative z-10">
 
-        <!-- Header & Navigation -->
         <header class="sticky top-0 z-50 glass-effect">
             <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
                 <div class="text-2xl font-bold text-white flex items-center gap-2">
@@ -109,14 +105,13 @@
                     <a href="features.html" class="text-slate-300 hover:text-indigo-400 transition-colors duration-300">Features</a>
                     <a href="about.html" class="text-slate-300 hover:text-indigo-400 transition-colors duration-300">About</a>
                     <a href="contact.html" class="text-slate-300 hover:text-indigo-400 transition-colors duration-300">Contact</a>
-                    <!-- Legal Dropdown -->
                     <div class="dropdown">
                         <button class="text-slate-300 hover:text-indigo-400 transition-colors duration-300 flex items-center">
                             Legal <i data-lucide="chevron-down" class="w-4 h-4 ml-1"></i>
                         </button>
                         <div class="dropdown-content">
                             <a href="privacy.html">Privacy Policy</a>
-                            <!-- Add other legal links like Terms of Service here -->
+                            <a href="terms.html">Terms of Service</a>
                         </div>
                     </div>
                 </div>
@@ -127,17 +122,16 @@
                     <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
             </nav>
-            <!-- Mobile Menu -->
             <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
                  <a href="features.html" class="block py-2 text-slate-300 hover:text-indigo-400">Features</a>
                  <a href="about.html" class="block py-2 text-slate-300 hover:text-indigo-400">About</a>
                  <a href="contact.html" class="block py-2 text-slate-300 hover:text-indigo-400">Contact</a>
                  <a href="privacy.html" class="block py-2 text-slate-300 hover:text-indigo-400">Privacy Policy</a>
+                 <a href="terms.html" class="block py-2 text-slate-300 hover:text-indigo-400">Terms of Service</a>
                  <a href="getstarted.html" class="block mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-center">Get Started</a>
             </div>
         </header>
 
-        <!-- Hero Section -->
         <main class="container mx-auto px-6 py-24 md:py-32 text-center">
             <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-tight hero-title">
                 <span class="text-indigo-400">Experience</span> Music
@@ -157,7 +151,6 @@
             </div>
         </main>
 
-        <!-- Music Player Section -->
         <section id="music-player-section" class="py-20">
             <div class="container mx-auto px-6">
                 <div class="max-w-2xl mx-auto glass-effect rounded-2xl p-8 shadow-2xl shadow-indigo-900/20">
@@ -179,16 +172,13 @@
             </div>
         </section>
 
-        <!-- Footer -->
         <footer class="bg-slate-900/80 border-t border-slate-800 mt-20">
             <div class="container mx-auto px-6 py-12">
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
-                    <!-- About -->
                     <div>
                         <h3 class="text-lg font-bold text-white mb-4">Synth</h3>
                         <p class="text-slate-400 text-sm">Revolutionizing the way you experience sound and visuals. Built in Nova Scotia, Canada.</p>
                     </div>
-                    <!-- Links -->
                     <div>
                         <h3 class="text-lg font-bold text-white mb-4">Quick Links</h3>
                         <ul class="space-y-2">
@@ -197,14 +187,13 @@
                             <li><a href="contact.html" class="text-slate-400 hover:text-indigo-400 text-sm transition-colors">Contact</a></li>
                         </ul>
                     </div>
-                     <!-- Legal -->
-                    <div>
+                     <div>
                         <h3 class="text-lg font-bold text-white mb-4">Legal</h3>
                         <ul class="space-y-2">
                             <li><a href="privacy.html" class="text-slate-400 hover:text-indigo-400 text-sm transition-colors">Privacy Policy</a></li>
+                            <li><a href="terms.html" class="text-slate-400 hover:text-indigo-400 text-sm transition-colors">Terms of Service</a></li>
                         </ul>
                     </div>
-                    <!-- Social -->
                     <div>
                         <h3 class="text-lg font-bold text-white mb-4">Connect</h3>
                         <div class="flex space-x-4">
@@ -214,7 +203,6 @@
                             <a href="https://bsky.app/profile/zombes18.bsky.social" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-indigo-400 transition-colors" aria-label="Bluesky"><i data-lucide="camera"></i></a>
                         </div>
                     </div>
-                    <!-- Newsletter -->
                     <div>
                         <h3 class="text-lg font-bold text-white mb-4">Stay Updated</h3>
                         <form class="flex">
@@ -368,4 +356,3 @@
     </script>
 </body>
 </html>
-
